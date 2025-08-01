@@ -11,7 +11,10 @@ float rotationAngle = 0.0f;
 float targetAngle = 0.0f;
 bool isRotating = false;
 double rotationStartTime = 0.0;
-float rotationDuration = 5.0f;
+float rotationDuration = 1.0f;
+int rotationType = 0; // 0 = 90 CW, 1 = 90 CCW, 2 = 180
+int directionOffset = 0; // Số lần xoay 90 độ CW (modulo 4)
+
 
 
 void InitializeMaze() {
@@ -111,9 +114,71 @@ void RotateMaze90Clockwise() {
     }
 }
 
+void RotateMaze90CounterClockWise() {
+    Cell temp[GRID_WIDTH][GRID_HEIGHT];
+
+    for (int x = 0; x < GRID_WIDTH; x++) {
+        for (int y = 0; y < GRID_HEIGHT; y++) {
+            int nx = y;
+            int ny = GRID_WIDTH - 1 - x;
+
+            temp[nx][ny].visited = maze[x][y].visited;
+
+            // Đổi hướng    
+            temp[nx][ny].topWall = maze[x][y].rightWall;
+            temp[nx][ny].rightWall = maze[x][y].bottomWall;
+            temp[nx][ny].bottomWall = maze[x][y].leftWall;
+            temp[nx][ny].leftWall = maze[x][y].topWall;
+        }
+    }
+
+    for (int x = 0; x < GRID_WIDTH; x++) {
+        for (int y = 0; y < GRID_HEIGHT; y++) {
+            maze[x][y] = temp[x][y];
+        }
+    }
+}
+
+void RotateMaze180() {
+    Cell temp[GRID_WIDTH][GRID_HEIGHT];
+
+    for (int x = 0; x < GRID_WIDTH; x++) {
+        for (int y = 0; y < GRID_HEIGHT; y++) {
+            int nx = GRID_WIDTH - 1 - x;
+            int ny = GRID_HEIGHT - 1 - y;
+            temp[nx][ny].visited = maze[x][y].visited;
+
+            temp[nx][ny].topWall = maze[x][y].bottomWall;
+            temp[nx][ny].bottomWall = maze[x][y].topWall;
+            temp[nx][ny].leftWall = maze[x][y].rightWall;
+            temp[nx][ny].rightWall = maze[x][y].leftWall;
+        }
+    }
+
+    for (int x = 0; x < GRID_WIDTH; x++) {
+        for (int y = 0; y < GRID_HEIGHT; y++) {
+            maze[x][y] = temp[x][y];
+        }
+    }
+}
+
+
 void RotatePosition90Clockwise(Position &pos) {
     int newX = GRID_HEIGHT - 1 - pos.y;
     int newY = pos.x;
+    pos.x = newX;
+    pos.y = newY;
+}
+
+void RotatePosition90CounterClockwise(Position &pos) {
+    int newX = pos.y;
+    int newY = GRID_WIDTH - 1 - pos.x;
+    pos.x = newX;
+    pos.y = newY;
+}
+void RotatePosition180(Position &pos) {
+    int newX = GRID_HEIGHT - 1 - pos.x;
+    int newY = GRID_WIDTH - 1 - pos.y;
     pos.x = newX;
     pos.y = newY;
 }
@@ -148,11 +213,21 @@ void inputMove() {
         ClearBackground(BLACK);
         DrawText("You win! ", SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT / 2 , 30, DARKGREEN);
         EndDrawing();
+        return;
     }
-    if (IsKeyPressed(KEY_RIGHT)) MovePlayer(1, 0);
-    if (IsKeyPressed(KEY_LEFT)) MovePlayer(-1, 0);
-    if (IsKeyPressed(KEY_UP)) MovePlayer(0, -1);
-    if (IsKeyPressed(KEY_DOWN)) MovePlayer(0, 1);
+    const int dx[4] = { 0, 1, 0, -1 };
+    const int dy[4] = { -1, 0, 1, 0 };
+
+    int dir = -1;
+    if (IsKeyPressed(KEY_UP))    dir = 0;
+    if (IsKeyPressed(KEY_RIGHT)) dir = 1;
+    if (IsKeyPressed(KEY_DOWN))  dir = 2;
+    if (IsKeyPressed(KEY_LEFT))  dir = 3;
+
+    if (dir != -1) {
+        int rotateDir = (dir + directionOffset)  % 4;
+        MovePlayer(dx[rotateDir], dy[rotateDir]);
+    }
 }
 
 int main() {
@@ -165,26 +240,60 @@ int main() {
     player.x = 0, player.y = 0;
     goal.x = GRID_WIDTH - 1;
     goal.y = GRID_HEIGHT - 1;
+    double lastAutoRotateTime = GetTime();
+    float autoRotateInterval = 5.0f;
+
     while(!WindowShouldClose()) {
-        if (!isRotating && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        if (!isRotating && GetTime() - lastAutoRotateTime >= autoRotateInterval) {
             isRotating = true;
             rotationStartTime = GetTime();
-            targetAngle = 90.0f;
+            lastAutoRotateTime = GetTime();
+        
+            rotationType = GetRandomValue(0, 2); // 0=CW, 1=CCW, 2=180
+        
+            switch (rotationType) {
+                case 0: targetAngle = 90.0f; break;
+                case 1: targetAngle = -90.0f; break;
+                case 2: targetAngle = 180.0f; break;
+            }
         }
+        
+        
+        
         inputMove();
         if (isRotating) {
             float t = (GetTime() - rotationStartTime) / rotationDuration;
             if (t >= 1.0f) {
                 isRotating = false;
                 rotationAngle = 0.0f;
-        
-                // Lúc này mới xoay thật
-                RotateMaze90Clockwise();
-                RotatePosition90Clockwise(player);
-                RotatePosition90Clockwise(goal);
-            } else {
-                rotationAngle = t * targetAngle; // t : 0 -> 1
+            
+                // Xoay dữ liệu thật
+                switch (rotationType) {
+                    case 0: // 90 CW
+                        directionOffset = (directionOffset + 1) % 4;
+                        RotateMaze90Clockwise();
+                        RotatePosition90Clockwise(player);
+                        RotatePosition90Clockwise(goal);
+                        break;
+                    case 1: // 90 CCW
+                        directionOffset = (directionOffset + 3) % 4;
+                        RotateMaze90CounterClockWise();
+                        RotatePosition90CounterClockwise(player);
+                        RotatePosition90CounterClockwise(goal);
+                        break;
+                    case 2: // 180
+                        directionOffset = (directionOffset + 2) % 4;
+                        RotateMaze180();
+                        RotatePosition180(player);
+                        RotatePosition180(goal);
+                        break;
+                }
+                
             }
+            else {
+                rotationAngle = t * targetAngle;
+            }
+            
         }
         
         if (gameWon) continue;
