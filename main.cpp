@@ -211,7 +211,8 @@ void inputMove() {
     if (gameWon) {
         BeginDrawing();
         ClearBackground(BLACK);
-        DrawText("You win! ", SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT / 2 , 30, DARKGREEN);
+        int textWidth = MeasureText("You win!", 30);
+        DrawText("You win!", SCREEN_WIDTH / 2 - textWidth / 2, SCREEN_HEIGHT / 2, 30, DARKGREEN);
         EndDrawing();
         return;
     }
@@ -230,6 +231,46 @@ void inputMove() {
     }
 }
 
+void AddLoops(int loopCount) {
+    int loopsAdded = 0;
+    while (loopsAdded < loopCount) {
+        int x = GetRandomValue(1, GRID_WIDTH - 2);
+        int y = GetRandomValue(1, GRID_HEIGHT - 2);
+
+        int dir = GetRandomValue(0, 3);
+        int nx = x, ny = y;
+
+        switch (dir) {
+            case 0: ny--; break;
+            case 1: ny++; break;
+            case 2: nx--; break;
+            case 3: nx++; break;
+        }
+
+        if (nx >= 0 && ny >= 0 && nx < GRID_WIDTH && ny < GRID_HEIGHT) {
+            // Kiểm tra xem có tường chưa bị phá
+            if (nx == x && ny == y - 1 && maze[x][y].topWall && maze[nx][ny].bottomWall) {
+                maze[x][y].topWall = false;
+                maze[nx][ny].bottomWall = false;
+                loopsAdded++;
+            } else if (nx == x && ny == y + 1 && maze[x][y].bottomWall && maze[nx][ny].topWall) {
+                maze[x][y].bottomWall = false;
+                maze[nx][ny].topWall = false;
+                loopsAdded++;
+            } else if (nx == x - 1 && ny == y && maze[x][y].leftWall && maze[nx][ny].rightWall) {
+                maze[x][y].leftWall = false;
+                maze[nx][ny].rightWall = false;
+                loopsAdded++;
+            } else if (nx == x + 1 && ny == y && maze[x][y].rightWall && maze[nx][ny].leftWall) {
+                maze[x][y].rightWall = false;
+                maze[nx][ny].leftWall = false;
+                loopsAdded++;
+            }
+        }
+    }
+}
+
+
 int main() {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Penguin Test");
     mazeTexture = LoadRenderTexture(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -237,6 +278,7 @@ int main() {
     InitAudioDevice();
     InitializeMaze();
     GenerateMaze(0, 0);
+    AddLoops(5);
     player.x = 0, player.y = 0;
     goal.x = GRID_WIDTH - 1;
     goal.y = GRID_HEIGHT - 1;
@@ -315,9 +357,11 @@ int main() {
 
     DrawTexturePro(mazeTexture.texture, source, dest, origin, rotationAngle, WHITE);
 
-    if (gameWon)
-        DrawText("You win!", SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT / 2 , 30, DARKGREEN);
-
+    if (gameWon){
+        int textWidth = MeasureText("You win!", 30);
+        DrawText("You win!", SCREEN_WIDTH / 2 - textWidth / 2, SCREEN_HEIGHT / 2, 30, DARKGREEN);
+    }
+        
     EndDrawing();
 
     }
