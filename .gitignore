@@ -1,0 +1,29 @@
+# ===== 🎯 BUILD ARTIFACTS =====
+*.o
+*.obj
+*.exe
+*.out
+*.dll
+
+# ===== 🧹 BACKUP / TEMPORARY FILES =====
+*.log
+*.tmp
+*.bak
+
+**/*.swp
+my_makefile
+my_make.sh
+
+# ===== 💻 VISUAL STUDIO CODE SETTINGS (giữ lại các file cấu hình dùng chung) =====
+.vscode/*
+!.vscode/c_cpp_properties.json
+!.vscode/launch.json
+!.vscode/settings.json
+!.vscode/tasks.json
+
+# ===== 🎨 MEDIA DEMO, FILE KHÔNG CẦN THIẾT =====
+preview.jpg
+
+# ===== 🧍 USER-SPECIFIC / OS-SPECIFIC FILES =====
+.DS_Store
+Thumbs.db
