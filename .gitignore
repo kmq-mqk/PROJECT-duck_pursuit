@@ -10,6 +10,10 @@
 *.tmp
 *.bak
 
+**/*.swp
+my_makefile
+my_make.sh
+
 # ===== 💻 VISUAL STUDIO CODE SETTINGS (giữ lại các file cấu hình dùng chung) =====
 .vscode/*
 !.vscode/c_cpp_properties.json
