@@ -6,9 +6,9 @@
 #include <time.h>
 
 
-#define SCREEN_WIDTH 600
-#define SCREEN_HEIGHT 600
-#define CELL_SIZE 60
+#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 800
+#define CELL_SIZE 400
 #define GRID_WIDTH (SCREEN_WIDTH / CELL_SIZE)
 #define GRID_HEIGHT (SCREEN_HEIGHT / CELL_SIZE)
 #define LIGHT_DISTANCE 2
@@ -23,6 +23,9 @@ typedef struct {
     bool topWall, bottomWall, leftWall, rightWall;
 } Cell;
 
+typedef enum GameScreen{
+    OPENING, GAMEPLAY, ENDING
+}GameScreen;
 
 
 
