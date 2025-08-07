@@ -1,6 +1,7 @@
 #include "map.hpp"
 #include "render.hpp"
 #include "logic.hpp"
+#include "header.hpp"
 
 // EXTERNAL VARIABLES
 // map.cpp

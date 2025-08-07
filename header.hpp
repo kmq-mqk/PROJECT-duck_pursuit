@@ -4,6 +4,7 @@
 #include <raymath.h>
 #include <stdlib.h>
 #include <time.h>
+#include <raygui.h>
 
 
 #define SCREEN_WIDTH 600
@@ -33,13 +34,16 @@ void GameStart(){
 
     SetTargetFPS(60);
     InitAudioDevice();
+    BeginDrawing();
+    ClearBackground(BLACK);
    
-
     while(!WindowShouldClose()) {
         switch (currentScreen){
             case OPENING:
             {
                 Rectangle playButton = {(SCREEN_WIDTH - MeasureText("PLAY", 100)) / 2, 500, MeasureText("PLAY", 100), 40};
+                DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SKYBLUE);
+                DrawText("DUCK PURSUIT", 100, 300, 80, ORANGE);
 
                 if(GuiButton(playButton, "PLAY")){
                     gameWon = false;
@@ -74,38 +78,7 @@ void GameStart(){
                         rotationAngle = t * targetAngle; // t : 0 -> 1
                     }
                 }
-                if (gameWon){
-                    currentScreen = ENDING;
-                    UnloadRenderTexture(mazeTexture);
-                }
-            }break;
 
-            case ENDING:
-            {
-                Rectangle playAgainButton = {(SCREEN_WIDTH - MeasureText("PLAY AGAIN", 100)) / 2, 500, MeasureText("PLAY AGAIN", 100), 40};
-                if (GuiButton(playAgainButton, "PLAY AGAIN"))
-                currentScreen = OPENING;
-            }break;
-            default: break;
-        }
-
-
-        // Vẽ giao diện
-        BeginDrawing();
-        ClearBackground(BLACK);
-        
-        switch(currentScreen)
-        {
-            case OPENING:
-            {
-                DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SKYBLUE);
-                DrawText("DUCK PURSUIT", 100, 300, 80, ORANGE);
-                Rectangle playButton = {(SCREEN_WIDTH - MeasureText("PLAY", 100)) / 2, 500, MeasureText("PLAY", 100), 40};
-                int button1 = GuiButton(playButton, "PLAY");
-            }break;
-
-            case GAMEPLAY:
-            {
                 // Vẽ maze lên texture
                 BeginTextureMode(mazeTexture);
                 ClearBackground(BLACK);
@@ -120,16 +93,47 @@ void GameStart(){
                 Vector2 origin = { SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 };
 
                 DrawTexturePro(mazeTexture.texture, source, dest, origin, rotationAngle, WHITE);
+
+                if (gameWon){
+                    currentScreen = ENDING;
+                    UnloadRenderTexture(mazeTexture);
+                }
             }break;
 
             case ENDING:
             {
+                ClearBackground(BLACK);
                 DrawText("You win!", SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT / 2 , 30, DARKGREEN);
                 Rectangle playAgainButton = {(SCREEN_WIDTH - MeasureText("PLAY AGAIN", 100)) / 2, 500, MeasureText("PLAY AGAIN", 100), 40};
-                int button2 = GuiButton(playAgainButton, "PLAY AGAIN");
+                if (GuiButton(playAgainButton, "PLAY AGAIN"))
+                currentScreen = OPENING;
             }break;
             default: break;
         }
+
+
+        // Vẽ giao diện
+
+        
+    //     switch(currentScreen)
+    //     {
+    //         case OPENING:
+    //         {
+    //         }break;
+
+    //         case GAMEPLAY:
+    //         {
+
+    //         }break;
+
+    //         case ENDING:
+    //         {
+
+    //             Rectangle playAgainButton = {(SCREEN_WIDTH - MeasureText("PLAY AGAIN", 100)) / 2, 500, MeasureText("PLAY AGAIN", 100), 40};
+    //             int button2 = GuiButton(playAgainButton, "PLAY AGAIN");
+    //         }break;
+    //         default: break;
+    //     }
 
     
         EndDrawing();
