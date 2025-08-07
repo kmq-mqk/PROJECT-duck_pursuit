@@ -8,6 +8,8 @@
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
 
+#include "map.hpp"
+
 #define SCREEN_WIDTH 600
 #define SCREEN_HEIGHT 600
 #define CELL_SIZE 60
@@ -43,6 +45,8 @@ void GameStart(){
     InitAudioDevice();
     BeginDrawing();
     ClearBackground(BLACK);
+
+    bool init = false;
    
     while(!WindowShouldClose()) {
         switch (currentScreen){
@@ -56,18 +60,18 @@ void GameStart(){
                     gameWon = false;
                     currentScreen = GAMEPLAY;
                     mazeTexture = LoadRenderTexture(SCREEN_WIDTH, SCREEN_HEIGHT);
-                    InitializeMaze();
-                    GenerateMaze(0, 0);
-                    player.x = 0, player.y = 0;
-                    goal.x = GRID_WIDTH - 1;
-                    goal.y = GRID_HEIGHT - 1;
+                    GenerateMaze(5, 5);
+                    AddLoops(5);
                 }
             }break;
             case GAMEPLAY:
             {
                 // 3 LINES BELOW ARE IMPORTANT  !!!
-                lastAutoRotateTime = GetTime();
-                autoRotateInterval = 5.0f;
+                if (!init) {
+                    lastAutoRotateTime = GetTime();
+                    autoRotateInterval = 5.0f;
+                    init = true;
+                }
                 // mazeTexture = LoadRenderTexture(SCREEN_WIDTH, SCREEN_HEIGHT);
 
                 InputMove();

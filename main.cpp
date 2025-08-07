@@ -20,10 +20,26 @@ extern bool isRotating;
 
 
 int main() {    
+    InitWindow(screenWidth, screenHeight, "Penguin Test");
+    SetTargetFPS(60);
+    InitAudioDevice();
+    GenerateMaze(5, 5);
+    AddLoops(5);
     
+    // 3 LINES BELOW ARE IMPORTANT  !!!
+    lastAutoRotateTime = GetTime();
+    autoRotateInterval = 5.0f;
+    mazeTexture = LoadRenderTexture(screenWidth, screenHeight);
 
-    GameStart();
+    while(!WindowShouldClose()) {
+        InputMove();
+        Render(50, 0.3);
+
+        if (gameWon) break;
+    }
+    UnloadRenderTexture(mazeTexture);
 
     CloseWindow();
+
     return 0;
 }
