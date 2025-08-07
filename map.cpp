@@ -17,6 +17,9 @@ void GenerateMaze(int inputCol, int inputRow) {
         maze[j] = (Cell*)calloc(col,  sizeof(Cell));
     }
 
+    player = (Position) {0, 0};
+    goal = (Position) {col - 1, row - 1};
+
     InitializeMaze();
     CreateMaze(0, 0);
 }
@@ -180,7 +183,7 @@ void LoadMap(char* fileName) {
 }
 void WriteMap(char* fileName) {
     int len = strlen(fileName), i = 0;
-    char* logFileName = calloc(len + strlen(".log") + 1, sizeof(char));
+    char* logFileName = (char*)calloc(len + strlen(".log") + 1, sizeof(char));
 	logFileName[i++] = '.';
     for (i; i <= len; i++)
         logFileName[i] = fileName[i - 1];
@@ -196,7 +199,7 @@ void WriteMap(char* fileName) {
 
     for (int j = 0; j < row; j++) {
         for (int i = 0; i < col; i++) {
-            fprintf(fout, "maze[%d][%d] = \t", i, j);
+            fprintf(flog, "maze[%d][%d] = \t", i, j);
             if (player.x == i && player.y == j) {
                 fprintf(flog, "SRC-");
                 fprintf(fmap, "a");

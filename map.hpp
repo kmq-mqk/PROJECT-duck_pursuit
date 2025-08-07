@@ -3,7 +3,6 @@
 
 #include <raylib.h>
 
-
 typedef struct {
     int x, y;
 } Position;
@@ -12,6 +11,12 @@ typedef struct {
     bool visited;
     bool topWall, bottomWall, leftWall, rightWall;
 } Cell;
+
+extern Cell** maze;    // maze[col][row]
+extern int col;    // Ox
+extern int row;    // Oy
+extern Position player, goal;
+
 
 // ---------- FOR MAP GENERATING
 void GenerateMaze(int inputCol, int inputRow);

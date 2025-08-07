@@ -1,18 +1,23 @@
 #include "render.hpp"
-
+#include "map.hpp"
 
 // ALL NECESSARY GLOBAL VARIABLES FOR RENDERING COME FROM HERE
 int screenWidth = 600, screenHeight = 600;
 RenderTexture2D mazeTexture;
-float curAngle = 0.0f;
-float targetAngle = 0.0f;
-float dDeg = 0.0f;
+double curAngle = 0.0f;
+double targetAngle = 0.0f;
+double dDeg = 0.0f;
 double lastAutoRotateTime;
-float autoRotateInterval = 5.0f;
+float autoRotateInterval = 1.0f;
+bool isRotating = false;
 
-void Render(int cellSize, float rotateDuration) {
-    Rotate(rotateDuration);
+// EXTERNAL VARIABLES
+extern int row, col;
+extern Cell** maze;
+extern Position player, goal;
 
+
+void Render(int cellSize, double rotateDuration) {
     BeginTextureMode(mazeTexture);
         ClearBackground(BLACK);
 
@@ -20,6 +25,8 @@ void Render(int cellSize, float rotateDuration) {
         DrawGoal(cellSize);
         DrawPlayer(cellSize);
     EndTextureMode();
+
+    Rotate(rotateDuration);
 
     // Sau đó xoay texture lên màn hình
     BeginDrawing();
@@ -29,9 +36,45 @@ void Render(int cellSize, float rotateDuration) {
         Rectangle dest = { screenWidth / 2, screenHeight / 2, (float)screenWidth, (float)screenHeight };
         Vector2 origin = { screenWidth / 2, screenHeight / 2 };
 
-        DrawTexturePro(mazeTexture.texture, source, dest, origin, rotationAngle, WHITE);
+        DrawTexturePro(mazeTexture.texture, source, dest, origin, (int)curAngle, WHITE);
     EndDrawing();
 }
+
+double CycleAngle(double angle) {
+    if (angle < 0)
+        return angle + 360;
+    if (angle >= 360)
+        return angle - 360;
+
+    return angle;
+}
+void Rotate(double rotateDuration) {
+    if (isRotating && curAngle >= targetAngle) {
+        curAngle = targetAngle = CycleAngle(curAngle);
+        dDeg = 0;
+        isRotating = false;
+        
+        return;
+    }
+    if (!isRotating && GetTime() - lastAutoRotateTime >= autoRotateInterval) {
+            isRotating = true;
+            // rotationStartTime = GetTime();
+            lastAutoRotateTime = GetTime();
+        
+            int rotationTypes[] = {-180, -90, 90, 180};
+            int size = sizeof(rotationTypes) / sizeof(rotationTypes[0]);
+        
+            double addAngle = rotationTypes[GetRandomValue(0, size - 1)];
+            dDeg = addAngle / rotateDuration;
+            targetAngle = curAngle + addAngle;
+            
+            isRotating = true;
+        }
+    if (isRotating && curAngle < targetAngle) {
+        curAngle += dDeg * GetFrameTime();
+    }
+}
+
 void DrawMaze(int cellSize) {
     for (int x = 0; x < col; x++) {
         for (int y = 0; y < row; y++) {
