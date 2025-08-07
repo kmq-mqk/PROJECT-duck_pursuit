@@ -20,15 +20,9 @@ extern bool isRotating;
 
 
 int main() {    
-    // 3 LINES BELOW ARE IMPORTANT  !!!
-    lastAutoRotateTime = GetTime();
-    autoRotateInterval = 5.0f;
-    mazeTexture = LoadRenderTexture(screenWidth, screenHeight);
+    
 
-    while(!WindowShouldClose()) {
-        GameStart();
-    }
-    UnloadRenderTexture(mazeTexture);
+    GameStart();
 
     CloseWindow();
     return 0;

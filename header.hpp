@@ -4,8 +4,9 @@
 #include <raymath.h>
 #include <stdlib.h>
 #include <time.h>
-#include <raygui.h>
 
+#define RAYGUI_IMPLEMENTATION
+#include "raygui.h"
 
 #define SCREEN_WIDTH 600
 #define SCREEN_HEIGHT 600
@@ -15,14 +16,20 @@
 #define LIGHT_DISTANCE 2
 
 
-typedef struct {
-    int x, y;
-} Position;
+extern bool gameWon;
+extern RenderTexture2D mazeTexture;
+extern double lastAutoRotateTime;
+extern float autoRotateInterval;
 
-typedef struct {
-    bool visited;
-    bool topWall, bottomWall, leftWall, rightWall;
-} Cell;
+
+// typedef struct {
+//     int x, y;
+// } Position;
+
+// typedef struct {
+//     bool visited;
+//     bool topWall, bottomWall, leftWall, rightWall;
+// } Cell;
 
 typedef enum GameScreen{
     OPENING, GAMEPLAY, ENDING
@@ -58,41 +65,13 @@ void GameStart(){
             }break;
             case GAMEPLAY:
             {
-                if (!isRotating && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-                    isRotating = true;
-                    rotationStartTime = GetTime();
-                    targetAngle = 90.0f;
-                }
-                inputMove();
-                if (isRotating) {
-                    float t = (GetTime() - rotationStartTime) / rotationDuration;
-                    if (t >= 1.0f) {
-                        isRotating = false;
-                        rotationAngle = 0.0f;
-                
-                        // Lúc này mới xoay thật
-                        RotateMaze90Clockwise();
-                        RotatePosition90Clockwise(player);
-                        RotatePosition90Clockwise(goal);
-                    } else {
-                        rotationAngle = t * targetAngle; // t : 0 -> 1
-                    }
-                }
+                // 3 LINES BELOW ARE IMPORTANT  !!!
+                lastAutoRotateTime = GetTime();
+                autoRotateInterval = 5.0f;
+                // mazeTexture = LoadRenderTexture(SCREEN_WIDTH, SCREEN_HEIGHT);
 
-                // Vẽ maze lên texture
-                BeginTextureMode(mazeTexture);
-                ClearBackground(BLACK);
-                DrawMaze();
-                DrawPlayer();
-                DrawGoal();
-                EndTextureMode();
-
-                // Sau đó xoay texture lên màn hình
-                Rectangle source = { 0, 0, (float)SCREEN_WIDTH, -(float)SCREEN_HEIGHT }; // cần - chiều cao
-                Rectangle dest = { SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, (float)SCREEN_WIDTH, (float)SCREEN_HEIGHT };
-                Vector2 origin = { SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 };
-
-                DrawTexturePro(mazeTexture.texture, source, dest, origin, rotationAngle, WHITE);
+                InputMove();
+                Render(CELL_SIZE, 1);
 
                 if (gameWon){
                     currentScreen = ENDING;
