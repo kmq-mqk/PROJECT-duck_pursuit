@@ -44,8 +44,6 @@ void InputMove() {
     if (IsKeyPressed(KEY_LEFT))  dir = 3;
 
     if (dir != -1) {
-        // int rotateDir = (dir + directionOffset)  % 4;
-        // MovePlayer(dx[rotateDir], dy[rotateDir]);
         MovePlayer(dx[dir], dy[dir]);
     }
 }
