@@ -17,7 +17,8 @@ extern double dDeg;
 extern double lastAutoRotateTime;
 extern float autoRotateInterval;
 extern bool isRotating;
-
+// logic.cpp
+extern bool gameWon;
 
 int main() {    
     InitWindow(screenWidth, screenHeight, "Penguin Test");

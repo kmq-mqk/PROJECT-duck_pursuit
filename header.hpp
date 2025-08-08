@@ -5,10 +5,12 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define RAYGUI_IMPLEMENTATION
-#include "raygui.h"
+// #define RAYGUI_IMPLEMENTATION
+// #include "raygui.h"
 
 #include "map.hpp"
+#include "render.hpp"
+#include "logic.hpp"
 
 #define SCREEN_WIDTH 600
 #define SCREEN_HEIGHT 600
@@ -18,10 +20,7 @@
 #define LIGHT_DISTANCE 2
 
 
-extern bool gameWon;
-extern RenderTexture2D mazeTexture;
-extern double lastAutoRotateTime;
-extern float autoRotateInterval;
+
 
 
 // typedef struct {
@@ -38,93 +37,7 @@ typedef enum GameScreen{
 }GameScreen;
 
 
-void GameStart(){
-    GameScreen currentScreen = OPENING;
-
-    SetTargetFPS(60);
-    InitAudioDevice();
-    BeginDrawing();
-    ClearBackground(BLACK);
-
-    bool init = false;
-   
-    while(!WindowShouldClose()) {
-        switch (currentScreen){
-            case OPENING:
-            {
-                Rectangle playButton = {(SCREEN_WIDTH - MeasureText("PLAY", 100)) / 2, 500, MeasureText("PLAY", 100), 40};
-                DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SKYBLUE);
-                DrawText("DUCK PURSUIT", 100, 300, 80, ORANGE);
-
-                if(GuiButton(playButton, "PLAY")){
-                    gameWon = false;
-                    currentScreen = GAMEPLAY;
-                    mazeTexture = LoadRenderTexture(SCREEN_WIDTH, SCREEN_HEIGHT);
-                    GenerateMaze(5, 5);
-                    AddLoops(5);
-                }
-            }break;
-            case GAMEPLAY:
-            {
-                // 3 LINES BELOW ARE IMPORTANT  !!!
-                if (!init) {
-                    lastAutoRotateTime = GetTime();
-                    autoRotateInterval = 5.0f;
-                    init = true;
-                }
-                // mazeTexture = LoadRenderTexture(SCREEN_WIDTH, SCREEN_HEIGHT);
-
-                InputMove();
-                Render(CELL_SIZE, 1);
-
-                if (gameWon){
-                    currentScreen = ENDING;
-                    UnloadRenderTexture(mazeTexture);
-                }
-            }break;
-
-            case ENDING:
-            {
-                ClearBackground(BLACK);
-                DrawText("You win!", SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT / 2 , 30, DARKGREEN);
-                Rectangle playAgainButton = {(SCREEN_WIDTH - MeasureText("PLAY AGAIN", 100)) / 2, 500, MeasureText("PLAY AGAIN", 100), 40};
-                if (GuiButton(playAgainButton, "PLAY AGAIN"))
-                currentScreen = OPENING;
-            }break;
-            default: break;
-        }
-
-
-        // Vẽ giao diện
-
-        
-    //     switch(currentScreen)
-    //     {
-    //         case OPENING:
-    //         {
-    //         }break;
-
-    //         case GAMEPLAY:
-    //         {
-
-    //         }break;
-
-    //         case ENDING:
-    //         {
-
-    //             Rectangle playAgainButton = {(SCREEN_WIDTH - MeasureText("PLAY AGAIN", 100)) / 2, 500, MeasureText("PLAY AGAIN", 100), 40};
-    //             int button2 = GuiButton(playAgainButton, "PLAY AGAIN");
-    //         }break;
-    //         default: break;
-    //     }
-
-    
-        EndDrawing();
-
-    }
-
-    CloseAudioDevice();
-}
+void GameStart();
 
 
 using namespace std;

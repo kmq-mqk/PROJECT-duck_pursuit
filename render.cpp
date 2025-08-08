@@ -33,8 +33,8 @@ void Render(int cellSize, double rotateDuration) {
         ClearBackground(BLACK);
 
         Rectangle source = { 0, 0, (float)screenWidth, -(float)screenHeight }; // cần - chiều cao
-        Rectangle dest = { screenWidth / 2, screenHeight / 2, (float)screenWidth, (float)screenHeight };
-        Vector2 origin = { screenWidth / 2, screenHeight / 2 };
+        Rectangle dest = { (float)screenWidth / 2, (float)screenHeight / 2, (float)screenWidth, (float)screenHeight };
+        Vector2 origin = { (float)screenWidth / 2, (float)screenHeight / 2 };
 
         DrawTexturePro(mazeTexture.texture, source, dest, origin, (int)curAngle, WHITE);
     EndDrawing();

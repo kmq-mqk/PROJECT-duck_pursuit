@@ -2,6 +2,11 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
+#include <fstream>
+// #include <iostream>
+
+using namespace std;
 
 // ALL NECESSARY GLOBAL VARIABLES FOR MAP COME FROM HERE
 Cell** maze;    // maze[col][row]
@@ -119,7 +124,7 @@ void AddLoops(int loopCount) {
 
 
 
-void ReadTxt(int j, char* line, int n) {
+void ReadTxt(int j, std::string line, int n) {
 	int i = 0;
 	for (int k = 0; k < n; k++) {
 		char ch = line[k];
@@ -158,12 +163,15 @@ void ReadTxt(int j, char* line, int n) {
 	}
 }
 void LoadMap(char* fileName) {
-	FILE* fin = fopen(fileName, "r");
-	if (!fin) {
-		perror("Error opening map file");
-		exit(1);
-	}
-	fscanf(fin, "%d %d ", &row, &col);
+	// FILE* fin = fopen(fileName, "r");
+    ifstream fin;
+    fin.open(fileName);
+	// if (!fin) {
+	// 	perror("Error opening map file");
+	// 	exit(1);
+	// }
+	// fscanf(fin, "%d %d ", &row, &col);
+    fin >> row >> col;
 
     // INIT MAZE
 	maze = (Cell**)calloc(col, sizeof(Cell*));
@@ -172,17 +180,17 @@ void LoadMap(char* fileName) {
 
     // READ FILE
     for (int j = 0; j < row; j++) {
-		char* line = NULL;
-		size_t len;
-		int n = getline(&line, &len, fin);
-		n -= (line[n - 1] == '\n');
-		ReadTxt(j, line, n);
+		string line;
+		getline(fin, line);
+		ReadTxt(j, line, line.length());
 	}
 
-	fclose(fin);
+	// fclose(fin);
+    fin.close();
 }
 void WriteMap(char* fileName) {
-    int len = strlen(fileName), i = 0;
+    int len = strlen(fileName);
+    int i = 0;
     char* logFileName = (char*)calloc(len + strlen(".log") + 1, sizeof(char));
 	logFileName[i++] = '.';
     for (i; i <= len; i++)
