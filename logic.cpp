@@ -26,14 +26,6 @@ void MovePlayer(int dx, int dy) {
 }
 
 void InputMove() {
-    if (gameWon) {
-        BeginDrawing();
-        ClearBackground(BLACK);
-        int textWidth = MeasureText("You win!", 30);
-        DrawText("You win!", screenWidth / 2 - textWidth / 2, screenHeight / 2, 30, DARKGREEN);
-        EndDrawing();
-        return;
-    }
     const int dx[4] = { 0, 1, 0, -1 };
     const int dy[4] = { -1, 0, 1, 0 };
 

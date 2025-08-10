@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string>
 #include <fstream>
-// #include <iostream>
+#include <raylib.h>
 
 using namespace std;
 
@@ -17,9 +17,9 @@ Position player, goal;
 void GenerateMaze(int inputCol, int inputRow) {
     col = inputCol;
     row = inputRow;
-    maze = (Cell**)calloc(row, sizeof(Cell*));
-    for (int j = 0; j < row; j++) {
-        maze[j] = (Cell*)calloc(col,  sizeof(Cell));
+    maze = (Cell**)calloc(col, sizeof(Cell*));
+    for (int i = 0; i < col; i++) {
+        maze[i] = (Cell*)calloc(row,  sizeof(Cell));
     }
 
     player = (Position) {0, 0};
@@ -163,14 +163,8 @@ void ReadTxt(int j, std::string line, int n) {
 	}
 }
 void LoadMap(char* fileName) {
-	// FILE* fin = fopen(fileName, "r");
     ifstream fin;
     fin.open(fileName);
-	// if (!fin) {
-	// 	perror("Error opening map file");
-	// 	exit(1);
-	// }
-	// fscanf(fin, "%d %d ", &row, &col);
     fin >> row >> col;
 
     // INIT MAZE
@@ -185,15 +179,14 @@ void LoadMap(char* fileName) {
 		ReadTxt(j, line, line.length());
 	}
 
-	// fclose(fin);
     fin.close();
 }
 void WriteMap(char* fileName) {
     int len = strlen(fileName);
+    char* logFileName = (char*)calloc(1 + len + strlen(".log") + 1, sizeof(char));
     int i = 0;
-    char* logFileName = (char*)calloc(len + strlen(".log") + 1, sizeof(char));
 	logFileName[i++] = '.';
-    for (i; i <= len; i++)
+    for (;i <= len; i++)
         logFileName[i] = fileName[i - 1];
     sprintf(logFileName, "%s.log", logFileName);
 

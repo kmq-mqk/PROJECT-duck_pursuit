@@ -4,9 +4,9 @@
 // ALL NECESSARY GLOBAL VARIABLES FOR RENDERING COME FROM HERE
 int screenWidth = 600, screenHeight = 600;
 RenderTexture2D mazeTexture;
-double curAngle = 0.0f;
-double targetAngle = 0.0f;
-double dDeg = 0.0f;
+double curAngle = 0;
+double targetAngle = 0;
+double dDeg = 0;
 double lastAutoRotateTime;
 float autoRotateInterval = 1.0f;
 bool isRotating = false;
@@ -36,12 +36,12 @@ void Render(int cellSize, double rotateDuration) {
         Rectangle dest = { (float)screenWidth / 2, (float)screenHeight / 2, (float)screenWidth, (float)screenHeight };
         Vector2 origin = { (float)screenWidth / 2, (float)screenHeight / 2 };
 
-        DrawTexturePro(mazeTexture.texture, source, dest, origin, (int)curAngle, WHITE);
+        DrawTexturePro(mazeTexture.texture, source, dest, origin, curAngle, WHITE);
     EndDrawing();
 }
 
-double CycleAngle(double angle) {
-    if (angle < 0)
+int CycleAngle(int angle) {
+    if (angle < -360)
         return angle + 360;
     if (angle >= 360)
         return angle - 360;
@@ -49,8 +49,10 @@ double CycleAngle(double angle) {
     return angle;
 }
 void Rotate(double rotateDuration) {
-    if (isRotating && curAngle >= targetAngle) {
-        curAngle = targetAngle = CycleAngle(curAngle);
+    int dir = 1 - 2 * (dDeg < 0);   // dir == 1 -> curAngle incrases; dir == -1 -> curAngle decreases
+
+    if (isRotating && curAngle * dir >= targetAngle * dir) {
+        curAngle = targetAngle = CycleAngle(targetAngle);
         dDeg = 0;
         isRotating = false;
         
@@ -58,20 +60,20 @@ void Rotate(double rotateDuration) {
     }
     if (!isRotating && GetTime() - lastAutoRotateTime >= autoRotateInterval) {
             isRotating = true;
-            // rotationStartTime = GetTime();
             lastAutoRotateTime = GetTime();
         
             int rotationTypes[] = {-180, -90, 90, 180};
+
             int size = sizeof(rotationTypes) / sizeof(rotationTypes[0]);
         
-            double addAngle = rotationTypes[GetRandomValue(0, size - 1)];
+            int addAngle = rotationTypes[GetRandomValue(0, size - 1)];
             dDeg = addAngle / rotateDuration;
             targetAngle = curAngle + addAngle;
             
             isRotating = true;
         }
-    if (isRotating && curAngle < targetAngle) {
-        curAngle += dDeg * GetFrameTime();
+    if (isRotating && curAngle * dir < targetAngle * dir) {
+        curAngle += GetFrameTime() * dDeg;
     }
 }
 

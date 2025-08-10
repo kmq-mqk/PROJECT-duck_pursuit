@@ -2,8 +2,6 @@
 #define _RENDER_HPP_
 
 #include <raylib.h>
-#include "raygui.h"
-
 
 void DrawMaze(int cellSize);
 void DrawPlayer(int cellSize);

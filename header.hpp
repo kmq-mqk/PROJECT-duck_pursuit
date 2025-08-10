@@ -5,12 +5,10 @@
 #include <stdlib.h>
 #include <time.h>
 
-// #define RAYGUI_IMPLEMENTATION
-// #include "raygui.h"
-
 #include "map.hpp"
 #include "render.hpp"
 #include "logic.hpp"
+#include "raygui.h"
 
 #define SCREEN_WIDTH 600
 #define SCREEN_HEIGHT 600
@@ -20,25 +18,13 @@
 #define LIGHT_DISTANCE 2
 
 
-
-
-
-// typedef struct {
-//     int x, y;
-// } Position;
-
-// typedef struct {
-//     bool visited;
-//     bool topWall, bottomWall, leftWall, rightWall;
-// } Cell;
-
 typedef enum GameScreen{
     OPENING, GAMEPLAY, ENDING
 }GameScreen;
 
 
 void GameStart();
-
+void Free();
 
 using namespace std;
 
