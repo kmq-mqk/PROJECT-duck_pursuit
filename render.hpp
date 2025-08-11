@@ -3,10 +3,12 @@
 
 #include <raylib.h>
 
-void DrawMaze(int cellSize);
-void DrawPlayer(int cellSize);
-void DrawGoal(int cellSize);
-void Render(int cellSize, double rotateDuration);
+Vector2 MeasureAlterVec(double cellSize);
+double MeasureCellSize();
+void DrawMaze(Vector2 alterVec, double cellSize);
+void DrawPlayer(Vector2 alterVec, double cellSize);
+void DrawGoal(Vector2 alterVec, double cellSize);
+void Render(Vector2 alterVec, double cellSize, double rotateDuration);
 void Rotate(double rotateDuration);
 
 #endif

@@ -13,6 +13,7 @@
 **/*.swp
 my_makefile
 my_make.sh
+game
 
 # ===== 💻 VISUAL STUDIO CODE SETTINGS (giữ lại các file cấu hình dùng chung) =====
 .vscode/*

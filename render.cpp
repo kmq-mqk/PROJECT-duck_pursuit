@@ -1,6 +1,8 @@
 #include "render.hpp"
 #include "map.hpp"
 
+#include <math.h>
+
 // ALL NECESSARY GLOBAL VARIABLES FOR RENDERING COME FROM HERE
 int screenWidth = 600, screenHeight = 600;
 RenderTexture2D mazeTexture;
@@ -17,13 +19,13 @@ extern Cell** maze;
 extern Position player, goal;
 
 
-void Render(int cellSize, double rotateDuration) {
+void Render(Vector2 alterVec, double cellSize, double rotateDuration) {
     BeginTextureMode(mazeTexture);
         ClearBackground(BLACK);
 
-        DrawMaze(cellSize);
-        DrawGoal(cellSize);
-        DrawPlayer(cellSize);
+        DrawMaze(alterVec, cellSize);
+        DrawGoal(alterVec, cellSize);
+        DrawPlayer(alterVec, cellSize);
     EndTextureMode();
 
     Rotate(rotateDuration);
@@ -77,11 +79,11 @@ void Rotate(double rotateDuration) {
     }
 }
 
-void DrawMaze(int cellSize) {
+void DrawMaze(Vector2 alterVec, double cellSize) {
     for (int x = 0; x < col; x++) {
         for (int y = 0; y < row; y++) {
-            int posX = x * cellSize;
-            int posY = y * cellSize;
+            int posX = x * cellSize + alterVec.x;
+            int posY = y * cellSize + alterVec.y;
             if (maze[x][y].topWall)  DrawLine(posX, posY, posX + cellSize, posY, WHITE);
             if (maze[x][y].rightWall)  DrawLine(posX + cellSize, posY, posX + cellSize, posY + cellSize, WHITE);
             if (maze[x][y].leftWall)  DrawLine(posX, posY , posX, posY + cellSize, WHITE);
@@ -90,9 +92,23 @@ void DrawMaze(int cellSize) {
         }
     }
 }
-void DrawPlayer(int cellSize) {
-    DrawRectangle(player.x * cellSize + 2, player.y * cellSize + 2, cellSize - 4, cellSize - 4, GREEN);
+void DrawPlayer(Vector2 alterVec, double cellSize) {
+    DrawRectangle(alterVec.x + player.x * cellSize + 2, alterVec.y + player.y * cellSize + 2, cellSize - 4, cellSize - 4, GREEN);
 }
-void DrawGoal(int cellSize) {
-    DrawRectangle(goal.x * cellSize + 2, goal.y * cellSize + 2, cellSize - 4, cellSize - 4, PINK);
+void DrawGoal(Vector2 alterVec, double cellSize) {
+    DrawRectangle(alterVec.x + goal.x * cellSize + 2, alterVec.y + goal.y * cellSize + 2, cellSize - 4, cellSize - 4, PINK);
+}
+
+double MeasureCellSize() {
+	// the code below is only for centering the maze on screen
+	int minSize = (screenWidth < screenHeight) ? screenWidth : screenHeight;
+	return minSize / sqrt(col * col + row * row);
+}
+
+Vector2 MeasureAlterVec(double cellSize) {
+	// the code below is only for centering the maze on screen
+	double halfMazeWidth = cellSize * col / 2.0;
+	double halfMazeHeight = cellSize * row / 2.0;
+
+	return (Vector2) {screenWidth / 2.0 - halfMazeWidth, screenHeight / 2.0 - halfMazeHeight};
 }

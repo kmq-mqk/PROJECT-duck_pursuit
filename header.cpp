@@ -17,8 +17,6 @@ void Penguin::Update() {
     
 }
 
-#include "map.hpp"
-#include "render.hpp"
 
 #include <stdlib.h>
 
@@ -26,6 +24,8 @@ extern bool gameWon;
 extern RenderTexture2D mazeTexture;
 extern double lastAutoRotateTime;
 extern float autoRotateInterval;
+
+extern int col;
 // variables that need to be freed
 extern Cell** maze;
 
@@ -60,7 +60,6 @@ void GameStart(){
             }break;
             case GAMEPLAY:
             {
-                // ClearBackground(BLACK);
                 // 3 LINES BELOW ARE IMPORTANT  !!!
                 if (!init) {
                     lastAutoRotateTime = GetTime();
@@ -69,7 +68,10 @@ void GameStart(){
                 }
 
                 InputMove();
-                Render(CELL_SIZE, 0.5);
+				// there will be a function below to check and change rendering values in few foreseeable days
+                double cellSize = MeasureCellSize();   // now, the function is only for putting the maze in the center of the screen 
+				Vector2 alterVec = MeasureAlterVec(cellSize);
+                Render(alterVec, cellSize, 0.5);
 
                 if (gameWon){
                     Free();
