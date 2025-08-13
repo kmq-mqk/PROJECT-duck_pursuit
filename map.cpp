@@ -1,10 +1,12 @@
 #include "map.hpp"
+
+#include <raylib.h>
+
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
 #include <fstream>
-#include <raylib.h>
 
 using namespace std;
 

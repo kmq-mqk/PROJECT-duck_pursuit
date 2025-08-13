@@ -1,7 +1,6 @@
 #ifndef _MAP_HPP_
 #define _MAP_HPP_
 
-#include <raylib.h>
 
 typedef struct {
     int x, y;
