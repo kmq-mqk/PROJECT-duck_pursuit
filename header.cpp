@@ -67,11 +67,11 @@ void GameStart(){
                     init = true;
                 }
 
-                InputMove();
+				InputMove();
 				// there will be a function below to check and change rendering values in few foreseeable days
-                double cellSize = MeasureCellSize();   // now, the function is only for putting the maze in the center of the screen 
+				double cellSize = MeasureCellSize();   // now, the function is only for putting the maze in the center of the screen 
 				Vector2 alterVec = MeasureAlterVec(cellSize);
-                Render(alterVec, cellSize, 0.5);
+				Render(alterVec, cellSize, 0.5);
 
                 if (gameWon){
                     Free();

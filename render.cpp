@@ -19,6 +19,14 @@ extern Cell** maze;
 extern Position player, goal;
 
 
+void UpdateRender(Vector2& alterVec, double cellSize) {
+	screenWidth = GetScreenWidth();
+	screenHeight = GetScreenHeight();
+
+	cellSize = MeasureCellSize();
+	alterVec = MeasureAlterVec(cellSize);
+}
+
 void Render(Vector2 alterVec, double cellSize, double rotateDuration) {
     BeginTextureMode(mazeTexture);
         ClearBackground(BLACK);
