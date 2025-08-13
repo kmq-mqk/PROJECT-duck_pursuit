@@ -1,11 +1,7 @@
-<<<<<<< Updated upstream
 #ifndef _MAP_HPP_
 #define _MAP_HPP_
 
-=======
-#pragma once
 #include <raylib.h>
->>>>>>> Stashed changes
 
 typedef struct {
     int x, y;
@@ -32,8 +28,5 @@ void AddLoops(int loopCount);
 void ReadTxt(int j, char* line, int n);
 void LoadMap(char* fileName);
 void WriteMap(char* fileName);
-<<<<<<< Updated upstream
 
 #endif
-=======
->>>>>>> Stashed changes

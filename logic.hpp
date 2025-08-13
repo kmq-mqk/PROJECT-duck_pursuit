@@ -1,8 +1,10 @@
-#ifndef _LOGIC_HPP_
-#define _LOGIC_HPP_
+#pragma once
 
 
 void MovePlayer(int dx, int dy);
 void InputMove();
+<<<<<<< Updated upstream
 
 #endif
+=======
+>>>>>>> Stashed changes
