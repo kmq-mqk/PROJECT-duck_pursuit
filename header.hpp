@@ -4,10 +4,13 @@
 #include <raymath.h>
 #include <stdlib.h>
 #include <time.h>
+
 #include "map.hpp"
 #include "render.hpp"
 #include "logic.hpp"
 #include "raygui.h"
+#include "score.hpp"
+
 
 #define SCREEN_WIDTH 600
 #define SCREEN_HEIGHT 600
@@ -16,14 +19,6 @@
 #define GRID_HEIGHT (SCREEN_HEIGHT / CELL_SIZE)
 #define LIGHT_DISTANCE 2
 
-// typedef struct {
-//     int x, y;
-// } Position;
-
-// typedef struct {
-//     bool visited;
-//     bool topWall, bottomWall, leftWall, rightWall;
-// } Cell;
 
 typedef enum GameScreen{
     OPENING, GAMEPLAY, ENDING
@@ -31,7 +26,7 @@ typedef enum GameScreen{
 
 
 void GameStart();
-
+void Free();
 
 using namespace std;
 

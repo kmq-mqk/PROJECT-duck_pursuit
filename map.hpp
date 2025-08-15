@@ -1,5 +1,6 @@
-#pragma once
-#include <raylib.h>
+#ifndef _MAP_HPP_
+#define _MAP_HPP_
+
 
 typedef struct {
     int x, y;
@@ -26,3 +27,5 @@ void AddLoops(int loopCount);
 void ReadTxt(int j, char* line, int n);
 void LoadMap(char* fileName);
 void WriteMap(char* fileName);
+
+#endif

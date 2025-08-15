@@ -1,7 +1,9 @@
 #define RAYGUI_IMPLEMENTATION
 #include "header.hpp"
 
-// EXTERNAL VARIABLES
+/* ------------------
+    EXTERNAL VARIABLES
+
 // map.cpp
 extern Position player, goal;
 extern Cell** maze;
@@ -17,6 +19,8 @@ extern float autoRotateInterval;
 extern bool isRotating;
 // logic.cpp
 extern bool gameWon;
+
+------------------ */
 
 int main() {    
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Penguin Test");

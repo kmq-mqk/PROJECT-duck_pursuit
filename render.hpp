@@ -1,9 +1,14 @@
-#pragma once
+#ifndef _RENDER_HPP_
+#define _RENDER_HPP_
 
 #include <raylib.h>
-
-void DrawMaze(int cellSize);
-void DrawPlayer(int cellSize);
-void DrawGoal(int cellSize);
-void Render(int cellSize, double rotateDuration);
+#include "score.hpp"
+Vector2 MeasureAlterVec(double cellSize);
+double MeasureCellSize();
+void DrawMaze(Vector2 alterVec, double cellSize);
+void DrawPlayer(Vector2 alterVec, double cellSize);
+void DrawGoal(Vector2 alterVec, double cellSize);
+void Render(Vector2 alterVec, double cellSize, double rotateDuration, const Score& score);
 void Rotate(double rotateDuration);
+
+#endif

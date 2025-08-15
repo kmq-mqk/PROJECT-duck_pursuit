@@ -1,11 +1,12 @@
 #include "map.hpp"
+
+#include <raylib.h>
+
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
 #include <fstream>
-#include <raylib.h>
-// #include <iostream>
 
 using namespace std;
 
@@ -18,9 +19,9 @@ Position player, goal;
 void GenerateMaze(int inputCol, int inputRow) {
     col = inputCol;
     row = inputRow;
-    maze = (Cell**)calloc(row, sizeof(Cell*));
-    for (int j = 0; j < row; j++) {
-        maze[j] = (Cell*)calloc(col,  sizeof(Cell));
+    maze = (Cell**)calloc(col, sizeof(Cell*));
+    for (int i = 0; i < col; i++) {
+        maze[i] = (Cell*)calloc(row,  sizeof(Cell));
     }
 
     player = (Position) {0, 0};
@@ -164,14 +165,8 @@ void ReadTxt(int j, std::string line, int n) {
 	}
 }
 void LoadMap(char* fileName) {
-	// FILE* fin = fopen(fileName, "r");
     ifstream fin;
     fin.open(fileName);
-	// if (!fin) {
-	// 	perror("Error opening map file");
-	// 	exit(1);
-	// }
-	// fscanf(fin, "%d %d ", &row, &col);
     fin >> row >> col;
 
     // INIT MAZE
@@ -186,58 +181,57 @@ void LoadMap(char* fileName) {
 		ReadTxt(j, line, line.length());
 	}
 
-	// fclose(fin);
     fin.close();
 }
-// void WriteMap(char* fileName) {
-//     int len = strlen(fileName);
-//     int i = 0;
-//     char* logFileName = (char*)calloc(len + strlen(".log") + 1, sizeof(char));
-// 	logFileName[i++] = '.';
-//     for (i; i <= len; i++)
-//         logFileName[i] = fileName[i - 1];
-//     sprintf(logFileName, "%s.log", logFileName);
+void WriteMap(char* fileName) {
+    int len = strlen(fileName);
+    char* logFileName = (char*)calloc(1 + len + strlen(".log") + 1, sizeof(char));
+    int i = 0;
+	logFileName[i++] = '.';
+    for (;i <= len; i++)
+        logFileName[i] = fileName[i - 1];
+    sprintf(logFileName, "%s.log", logFileName);
 
 
-//     FILE* fmap = fopen(fileName, "w");
-//     FILE* flog = fopen(logFileName, "w");
-//     free(logFileName);
+    FILE* fmap = fopen(fileName, "w");
+    FILE* flog = fopen(logFileName, "w");
+    free(logFileName);
 
-//     fprintf(fmap, "%d %d\n", col, row);
-//     fprintf(flog, "%d %d\n", col, row);
+    fprintf(fmap, "%d %d\n", col, row);
+    fprintf(flog, "%d %d\n", col, row);
 
-//     for (int j = 0; j < row; j++) {
-//         for (int i = 0; i < col; i++) {
-//             fprintf(flog, "maze[%d][%d] = \t", i, j);
-//             if (player.x == i && player.y == j) {
-//                 fprintf(flog, "SRC-");
-//                 fprintf(fmap, "a");
-//             }
-//             if (goal.x == i && goal.y == j) {
-//                 fprintf(flog, "DEST-");
-//                 fprintf(fmap, "b");
-//             }
-//             if (maze[i][j].topWall == true) {
-//                 fprintf(flog, "top-");
-//                 fprintf(fmap, "u");
-//             }
-//             if (maze[i][j].bottomWall == true) {
-//                 fprintf(flog, "bot-");
-//                 fprintf(fmap, "d");
-//             }
-//             if (maze[i][j].leftWall == true) {
-//                 fprintf(flog, "left-");
-//                 fprintf(fmap, "l");
-//             }
-//             if (maze[i][j].rightWall == true) {
-//                 fprintf(flog, "right-");          
-//                 fprintf(fmap, "r");
-//             }
-//             fprintf(flog, "\n");
-//             fprintf(fmap, "|");
-//         }
-//     }
+    for (int j = 0; j < row; j++) {
+        for (int i = 0; i < col; i++) {
+            fprintf(flog, "maze[%d][%d] = \t", i, j);
+            if (player.x == i && player.y == j) {
+                fprintf(flog, "SRC-");
+                fprintf(fmap, "a");
+            }
+            if (goal.x == i && goal.y == j) {
+                fprintf(flog, "DEST-");
+                fprintf(fmap, "b");
+            }
+            if (maze[i][j].topWall == true) {
+                fprintf(flog, "top-");
+                fprintf(fmap, "u");
+            }
+            if (maze[i][j].bottomWall == true) {
+                fprintf(flog, "bot-");
+                fprintf(fmap, "d");
+            }
+            if (maze[i][j].leftWall == true) {
+                fprintf(flog, "left-");
+                fprintf(fmap, "l");
+            }
+            if (maze[i][j].rightWall == true) {
+                fprintf(flog, "right-");          
+                fprintf(fmap, "r");
+            }
+            fprintf(flog, "\n");
+            fprintf(fmap, "|");
+        }
+    }
 
-//     fclose(fmap);
-//     fclose(flog);
-// }
+    fclose(fmap);
+    fclose(flog);
+}
