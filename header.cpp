@@ -25,6 +25,11 @@ extern RenderTexture2D mazeTexture;
 extern double lastAutoRotateTime;
 extern float autoRotateInterval;
 
+extern int screenWidth, screenHeight;
+extern MobiObj player;
+extern Vector2 alterVec;
+extern double cellSize;
+
 extern int col;
 // variables that need to be freed
 extern Cell** maze;
@@ -35,8 +40,8 @@ void GameStart(){
 
     // OPENING background:
     Image *background = new Image {LoadImage("resources/background.png")};
-    ImageResize(background, SCREEN_WIDTH, SCREEN_HEIGHT);
-    Texture2D bgTexture = LoadTextureFromImage(*background);
+    // ImageResize(background, screenWidth, screenHeight);
+    // Texture2D bgTexture = LoadTextureFromImage(*background);
 
     Image *playButton = new Image {LoadImage("resources/playbutton.png")};
     ImageResize(playButton, 180, 60);
@@ -48,8 +53,8 @@ void GameStart(){
     //-------------------
     //ENDING background:
     Image *background2 = new Image {LoadImage("resources/ending.png")};
-    ImageResize(background2, SCREEN_WIDTH, SCREEN_HEIGHT);
-    Texture2D bgTexture2 = LoadTextureFromImage(*background2);
+    // ImageResize(background2, screenWidth, screenHeight);
+    // Texture2D bgTexture2 = LoadTextureFromImage(*background2);
     
     Image *endButton = new Image {LoadImage("resources/endbutton.png")};
     ImageResize(endButton, 180, 60);
@@ -66,13 +71,18 @@ void GameStart(){
         switch (currentScreen){
             case OPENING:
             {
+                UpdateRender();
+
+                ImageResize(background, screenWidth, screenHeight);
+                Texture2D bgTexture = LoadTextureFromImage(*background);
+                
                 BeginDrawing();
                     DrawTextureV(bgTexture, {0,0}, WHITE);
-                    DrawTexture(playButtonTexTure, SCREEN_WIDTH/2 - playButtonTexTure.width/2, SCREEN_HEIGHT/2 - playButtonTexTure.height/2 + 150, WHITE);
-                    Rectangle playButton_Rec = {SCREEN_WIDTH/2 - 180/2, SCREEN_HEIGHT/2 - 60/2 + 150, 180, 60};
+                    DrawTexture(playButtonTexTure, screenWidth/2 - playButtonTexTure.width/2, screenHeight/2 - playButtonTexTure.height/2 + 150, WHITE);
+                    Rectangle playButton_Rec = {screenWidth/2 - 180/2, screenHeight/2 - 60/2 + 150, 180, 60};
 
                     if(CheckCollisionPointRec(GetMousePosition(), playButton_Rec)){
-                        DrawTexture(playButtonTexTure2, SCREEN_WIDTH/2 - playButtonTexTure2.width/2, SCREEN_HEIGHT/2 - playButtonTexTure2.height/2 + 150, WHITE);
+                        DrawTexture(playButtonTexTure2, screenWidth/2 - playButtonTexTure2.width/2, screenHeight/2 - playButtonTexTure2.height/2 + 150, WHITE);
                         if(IsMouseButtonPressed(0)){
                             //go to GAMEPLAY
                             gameWon = false;
@@ -81,13 +91,15 @@ void GameStart(){
                                 UnloadRenderTexture(mazeTexture);
                             }
                             
-                            mazeTexture = LoadRenderTexture(SCREEN_WIDTH, SCREEN_HEIGHT);
+                            mazeTexture = LoadRenderTexture(screenWidth, screenHeight);
                             
                             GenerateMaze(4, 10);
                             AddLoops(5);
                         }
                     }
                 EndDrawing();
+
+                UnloadTexture(bgTexture);
             }break;
             case GAMEPLAY:
             {
@@ -96,45 +108,57 @@ void GameStart(){
                     lastAutoRotateTime = GetTime();
                     autoRotateInterval = 2.0f;
                     init = true;
+
+                    ClearWindowState(FLAG_WINDOW_RESIZABLE);
                 }
 
+				UpdateMobiObj(player);
 				InputMove();
 				// there will be a function below to check and change rendering values in few foreseeable days
 				double cellSize = MeasureCellSize();   // now, the function is only for putting the maze in the center of the screen 
 				Vector2 alterVec = MeasureAlterVec(cellSize);
-				Render(alterVec, cellSize, 0.5);
+                Render(alterVec, cellSize, 0.5);
 
                 if (gameWon){
                     Free();
                     currentScreen = ENDING;
                     UnloadRenderTexture(mazeTexture);
+
+                    SetWindowState(FLAG_WINDOW_RESIZABLE);
                 }
             }break;
 
             case ENDING:
             {
+                UpdateRender();
+
+                ImageResize(background2, screenWidth, screenHeight);
+                Texture2D bgTexture2 = LoadTextureFromImage(*background2);
+
                 BeginDrawing();
                     ClearBackground(BLACK);
                     DrawTextureV(bgTexture2, {0,0}, WHITE);
-                    DrawTexture(endButtonTexTure, SCREEN_WIDTH/2 - endButtonTexTure.width/2, SCREEN_HEIGHT/2 - endButtonTexTure.height/2 + 250, WHITE);
-                    Rectangle endButton_Rec = {SCREEN_WIDTH/2 - 180/2, SCREEN_HEIGHT/2 - 60/2 + 250, 180, 60};
+                    DrawTexture(endButtonTexTure, screenWidth/2 - endButtonTexTure.width/2, screenHeight/2 - endButtonTexTure.height/2 + 250, WHITE);
+                    Rectangle endButton_Rec = {screenWidth/2 - 180/2, screenHeight/2 - 60/2 + 250, 180, 60};
                     
                     if (CheckCollisionPointRec(GetMousePosition(), endButton_Rec)){
-                        DrawTexture(endButtonTexTure2, SCREEN_WIDTH/2 - endButtonTexTure2.width/2, SCREEN_HEIGHT/2 - endButtonTexTure2.height/2 + 250, WHITE);  
+                        DrawTexture(endButtonTexTure2, screenWidth/2 - endButtonTexTure2.width/2, screenHeight/2 - endButtonTexTure2.height/2 + 250, WHITE);  
                         if(IsMouseButtonPressed(0))
                             currentScreen = OPENING;
                     }
                 EndDrawing();
                 init = false;
+
+                UnloadTexture(bgTexture2);
             }break;
             default: break;
         }
     }
 
-    UnloadTexture(bgTexture);
+    // UnloadTexture(bgTexture);
     UnloadTexture(playButtonTexTure);
     UnloadTexture(playButtonTexTure2);
-    UnloadTexture(bgTexture2);
+    // UnloadTexture(bgTexture2);
     UnloadTexture(endButtonTexTure);
     UnloadTexture(endButtonTexTure2);
 

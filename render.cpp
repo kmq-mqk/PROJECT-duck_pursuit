@@ -1,10 +1,10 @@
 #include "render.hpp"
-#include "map.hpp"
+// #include "map.hpp"
 
 #include <math.h>
 
 // ALL NECESSARY GLOBAL VARIABLES FOR RENDERING COME FROM HERE
-int screenWidth = 600, screenHeight = 600;
+int screenWidth = 800, screenHeight = 600;
 RenderTexture2D mazeTexture;
 double curAngle = 0;
 double targetAngle = 0;
@@ -13,18 +13,39 @@ double lastAutoRotateTime;
 float autoRotateInterval = 1.0f;
 bool isRotating = false;
 
+Vector2 alterVec;
+double cellSize;
+double movingDuration = 0.5;
+
 // EXTERNAL VARIABLES
+extern bool gameWon;
+
 extern int row, col;
 extern Cell** maze;
-extern Position player, goal;
+extern Position goal;
+extern MobiObj player;
 
+void UpdateRender() {
+    screenWidth = GetScreenWidth();
+    screenHeight = GetScreenHeight();
 
-void UpdateRender(Vector2& alterVec, double cellSize) {
-	screenWidth = GetScreenWidth();
-	screenHeight = GetScreenHeight();
+    cellSize = MeasureCellSize();
+    alterVec = MeasureAlterVec(cellSize);
+}
 
-	cellSize = MeasureCellSize();
-	alterVec = MeasureAlterVec(cellSize);
+void UpdateMobiObj(MobiObj& obj) {
+    if ((int)player.curPos.x == goal.x && (int)player.curPos.y == goal.y) gameWon = true;
+
+    if (obj.isMoving && obj.curPos.x * obj.dirX >= obj.tarPos.x * obj.dirX && obj.curPos.y * obj.dirY >= obj.tarPos.y * obj.dirY) {
+        obj.isMoving = false;
+        obj.speed = (Vector2){0, 0};
+        obj.curPos.x = obj.tarPos.x;
+        obj.curPos.y = obj.tarPos.y;
+    }
+    else if (obj.isMoving) {
+        obj.curPos.x += GetFrameTime() * obj.speed.x;
+        obj.curPos.y += GetFrameTime() * obj.speed.y;
+    }
 }
 
 void Render(Vector2 alterVec, double cellSize, double rotateDuration) {
@@ -36,7 +57,7 @@ void Render(Vector2 alterVec, double cellSize, double rotateDuration) {
         DrawPlayer(alterVec, cellSize);
     EndTextureMode();
 
-    Rotate(rotateDuration);
+    // Rotate(rotateDuration);
 
     // Sau đó xoay texture lên màn hình
     BeginDrawing();
@@ -101,7 +122,10 @@ void DrawMaze(Vector2 alterVec, double cellSize) {
     }
 }
 void DrawPlayer(Vector2 alterVec, double cellSize) {
-    DrawRectangle(alterVec.x + player.x * cellSize + 2, alterVec.y + player.y * cellSize + 2, cellSize - 4, cellSize - 4, GREEN);
+    Vector2 pos = {alterVec.x + player.curPos.x * cellSize + 2, alterVec.y + player.curPos.y * cellSize + 2};
+    Vector2 size = {cellSize - 4, cellSize - 4};
+    DrawRectangleV(pos, size, GREEN);
+    // DrawRectangle(alterVec.x + player.x * cellSize + 2, alterVec.y + player.y * cellSize + 2, cellSize - 4, cellSize - 4, GREEN);
 }
 void DrawGoal(Vector2 alterVec, double cellSize) {
     DrawRectangle(alterVec.x + goal.x * cellSize + 2, alterVec.y + goal.y * cellSize + 2, cellSize - 4, cellSize - 4, PINK);

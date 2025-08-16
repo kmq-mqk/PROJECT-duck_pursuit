@@ -1,7 +1,12 @@
 #ifndef _RENDER_HPP_
 #define _RENDER_HPP_
 
+#include "map.hpp"
+
 #include <raylib.h>
+
+void UpdateRender();
+void UpdateMobiObj(MobiObj&);
 
 Vector2 MeasureAlterVec(double cellSize);
 double MeasureCellSize();

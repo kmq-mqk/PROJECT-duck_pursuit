@@ -22,8 +22,11 @@ extern bool gameWon;
 
 ------------------ */
 
+extern int screenWidth, screenHeight;
+
 int main() {    
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Penguin Test");
+    InitWindow(screenWidth, screenHeight, "Penguin Test");
+    SetWindowState(FLAG_WINDOW_RESIZABLE);
     SetTargetFPS(60);
 
     GameStart(); // chạy toàn bộ vòng đời game: OPENING → GAMEPLAY → ENDING

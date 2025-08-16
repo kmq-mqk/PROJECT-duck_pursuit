@@ -14,7 +14,18 @@ using namespace std;
 Cell** maze;    // maze[col][row]
 int col;    // Ox
 int row;    // Oy
-Position player, goal;
+Position goal;
+MobiObj player;
+
+void PlayerInfo() {
+    FILE* log = fopen("info.log", "a");
+    fprintf(log, "isMoving ->> %d\n", player.isMoving);
+    fprintf(log, "dir ->> [%d, %d]\n", player.dirX, player.dirY);
+    fprintf(log, "speed ->> [%.2f, %.2f]\n", player.speed.x, player.speed.y);
+    fprintf(log, "curPos ->> [%d, %d]\n", (int)player.curPos.x, (int)player.curPos.y);
+    fprintf(log, "tarPos ->> [%d, %d]\n\n", player.tarPos.x, player.tarPos.y);
+    fclose(log);
+}
 
 void GenerateMaze(int inputCol, int inputRow) {
     col = inputCol;
@@ -24,11 +35,19 @@ void GenerateMaze(int inputCol, int inputRow) {
         maze[i] = (Cell*)calloc(row,  sizeof(Cell));
     }
 
-    player = (Position) {0, 0};
+    // player = (Position) {0, 0};
+    // player = (MobiObj) {0, 0, 0, 0, 0, 0, 0, 0, 0};
+    player = (MobiObj) {false, 0, 0, {0,0}, {0,0}, {0,0}};
+    // player.isMoving = false;
+    // player.dirX = player.dirY = 0;
+    // player.speed = player.curPos = (Vector2){0, 0};
+    // player.tarPos = (Position){0, 0};
     goal = (Position) {col - 1, row - 1};
 
     InitializeMaze();
     CreateMaze(0, 0);
+
+    PlayerInfo();
 }
 void InitializeMaze() {
     for (int i = 0; i < col; i++) {
@@ -130,7 +149,6 @@ void ReadTxt(int j, std::string line, int n) {
 	int i = 0;
 	for (int k = 0; k < n; k++) {
 		char ch = line[k];
-        // printf("%c_", line[k]);
 
 		switch (ch) {
 			case '|':
@@ -138,8 +156,8 @@ void ReadTxt(int j, std::string line, int n) {
 				// continue;
 				break;
 			case 'a':
-                player.x = i;
-                player.y = j;
+                player.curPos.x = i;
+                player.curPos.y = j;
 				break;
 			case 'b':
                 goal.x = i;
@@ -203,7 +221,7 @@ void WriteMap(char* fileName) {
     for (int j = 0; j < row; j++) {
         for (int i = 0; i < col; i++) {
             fprintf(flog, "maze[%d][%d] = \t", i, j);
-            if (player.x == i && player.y == j) {
+            if (player.curPos.x == i && player.curPos.y == j) {
                 fprintf(flog, "SRC-");
                 fprintf(fmap, "a");
             }
