@@ -17,6 +17,8 @@ extern double dDeg;
 extern double lastAutoRotateTime;
 extern float autoRotateInterval;
 extern bool isRotating;
+extern Vector2 alterVec;
+extern double cellSize;
 // logic.cpp
 extern bool gameWon;
 

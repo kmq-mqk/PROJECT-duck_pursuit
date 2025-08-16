@@ -1,5 +1,4 @@
 #include "render.hpp"
-// #include "map.hpp"
 
 #include <math.h>
 
@@ -12,18 +11,17 @@ double dDeg = 0;
 double lastAutoRotateTime;
 float autoRotateInterval = 1.0f;
 bool isRotating = false;
-
 Vector2 alterVec;
 double cellSize;
 double movingDuration = 0.5;
 
 // EXTERNAL VARIABLES
 extern bool gameWon;
-
 extern int row, col;
 extern Cell** maze;
 extern Position goal;
 extern MobiObj player;
+
 
 void UpdateRender() {
     screenWidth = GetScreenWidth();
@@ -57,7 +55,7 @@ void Render(Vector2 alterVec, double cellSize, double rotateDuration) {
         DrawPlayer(alterVec, cellSize);
     EndTextureMode();
 
-    // Rotate(rotateDuration);
+    Rotate(rotateDuration);
 
     // Sau đó xoay texture lên màn hình
     BeginDrawing();
@@ -125,7 +123,6 @@ void DrawPlayer(Vector2 alterVec, double cellSize) {
     Vector2 pos = {alterVec.x + player.curPos.x * cellSize + 2, alterVec.y + player.curPos.y * cellSize + 2};
     Vector2 size = {cellSize - 4, cellSize - 4};
     DrawRectangleV(pos, size, GREEN);
-    // DrawRectangle(alterVec.x + player.x * cellSize + 2, alterVec.y + player.y * cellSize + 2, cellSize - 4, cellSize - 4, GREEN);
 }
 void DrawGoal(Vector2 alterVec, double cellSize) {
     DrawRectangle(alterVec.x + goal.x * cellSize + 2, alterVec.y + goal.y * cellSize + 2, cellSize - 4, cellSize - 4, PINK);

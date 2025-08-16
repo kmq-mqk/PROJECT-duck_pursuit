@@ -40,8 +40,6 @@ void GameStart(){
 
     // OPENING background:
     Image *background = new Image {LoadImage("resources/background.png")};
-    // ImageResize(background, screenWidth, screenHeight);
-    // Texture2D bgTexture = LoadTextureFromImage(*background);
 
     Image *playButton = new Image {LoadImage("resources/playbutton.png")};
     ImageResize(playButton, 180, 60);
@@ -53,8 +51,6 @@ void GameStart(){
     //-------------------
     //ENDING background:
     Image *background2 = new Image {LoadImage("resources/ending.png")};
-    // ImageResize(background2, screenWidth, screenHeight);
-    // Texture2D bgTexture2 = LoadTextureFromImage(*background2);
     
     Image *endButton = new Image {LoadImage("resources/endbutton.png")};
     ImageResize(endButton, 180, 60);
@@ -103,7 +99,7 @@ void GameStart(){
             }break;
             case GAMEPLAY:
             {
-                // 3 LINES BELOW ARE IMPORTANT  !!!
+                // THE BLOCK BELOW ARE IMPORTANT  !!!
                 if (!init) {
                     lastAutoRotateTime = GetTime();
                     autoRotateInterval = 2.0f;
@@ -114,9 +110,6 @@ void GameStart(){
 
 				UpdateMobiObj(player);
 				InputMove();
-				// there will be a function below to check and change rendering values in few foreseeable days
-				double cellSize = MeasureCellSize();   // now, the function is only for putting the maze in the center of the screen 
-				Vector2 alterVec = MeasureAlterVec(cellSize);
                 Render(alterVec, cellSize, 0.5);
 
                 if (gameWon){
@@ -155,10 +148,8 @@ void GameStart(){
         }
     }
 
-    // UnloadTexture(bgTexture);
     UnloadTexture(playButtonTexTure);
     UnloadTexture(playButtonTexTure2);
-    // UnloadTexture(bgTexture2);
     UnloadTexture(endButtonTexTure);
     UnloadTexture(endButtonTexTure2);
 

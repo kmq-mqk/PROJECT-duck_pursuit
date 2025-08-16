@@ -21,11 +21,6 @@ typedef struct {
     Position tarPos;
 } MobiObj;
 
-// extern Cell** maze;    // maze[col][row]
-// extern int col;    // Ox
-// extern int row;    // Oy
-// extern Position goal;
-// extern MobiObj player;
 
 // ---------- FOR MAP GENERATING
 void GenerateMaze(int inputCol, int inputRow);

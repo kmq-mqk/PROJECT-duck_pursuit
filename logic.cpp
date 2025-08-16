@@ -15,18 +15,8 @@ extern int col, row;
 extern int screenWidth, screenHeight;
 extern double movingDuration;
 
-void PlayerInfo();
-// void PlayerInfo() {
-//     FILE* log = fopen("move.log", "a");
-//     fprintf(log, "isMoving ->> %d\n", player.isMoving);
-//     fprintf(log, "dir ->> [%d, %d]\n", player.dirX, player.dirY);
-//     fprintf(log, "speed ->> [%.2f, %.2f]\n", player.speed.x, player.speed.y);
-//     fprintf(log, "curPos ->> [%d, %d]\n", player.curPos.x, player.curPos.y);
-//     fprintf(log, "tarPos ->> [%d, %d]\n\n", player.tarPos.x, player.tarPos.y);
-//     fclose(log);
-// }
-void MovePlayer(int dx, int dy) {
 
+void MovePlayer(int dx, int dy) {
     if (!player.isMoving) {
         int x = (int)player.curPos.x;
         int y = (int)player.curPos.y;
