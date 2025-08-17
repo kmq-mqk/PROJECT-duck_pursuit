@@ -14,7 +14,12 @@ extern Cell** maze;
 extern int col, row;
 extern int screenWidth, screenHeight;
 extern double movingDuration;
-
+extern bool isRotating;
+extern Vector2 alterVec;
+extern double cellSize;
+extern double curAngle;
+extern double targetAngle;
+extern double dDeg;
 
 void MovePlayer(int dx, int dy) {
     if (!player.isMoving) {
@@ -37,8 +42,6 @@ void MovePlayer(int dx, int dy) {
         player.speed.y = (player.tarPos.y - player.curPos.y) / movingDuration;
         player.dirX = 1 - 2 * (player.speed.x < 0);
         player.dirY = 1 - 2 * (player.speed.y < 0);
-
-        PlayerInfo();
     }
 }
 
@@ -54,5 +57,15 @@ void InputMove() {
 
     if (dir != -1) {
         MovePlayer(dx[dir], dy[dir]);
+    }
+}
+
+void WinCheck() {
+    if ((int)player.curPos.x == goal.x && (int)player.curPos.y == goal.y) {
+        gameWon = true;
+        isRotating = false;
+        curAngle = targetAngle = dDeg = 0;
+        cellSize = 0;
+        alterVec = (Vector2){0, 0};
     }
 }

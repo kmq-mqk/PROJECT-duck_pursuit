@@ -1,6 +1,7 @@
 #include "render.hpp"
 
 #include <math.h>
+#include <stdio.h>
 
 // ALL NECESSARY GLOBAL VARIABLES FOR RENDERING COME FROM HERE
 int screenWidth = 800, screenHeight = 600;
@@ -11,8 +12,8 @@ double dDeg = 0;
 double lastAutoRotateTime;
 float autoRotateInterval = 1.0f;
 bool isRotating = false;
-Vector2 alterVec;
-double cellSize;
+Vector2 alterVec = {0, 0};
+double cellSize = 0;
 double movingDuration = 0.5;
 
 // EXTERNAL VARIABLES
@@ -23,17 +24,22 @@ extern Position goal;
 extern MobiObj player;
 
 
-void UpdateRender() {
-    screenWidth = GetScreenWidth();
-    screenHeight = GetScreenHeight();
+void UpdateRender(Texture2D* texture, Image* img) {
+    int width = GetScreenWidth();
+    int height = GetScreenHeight();
 
-    cellSize = MeasureCellSize();
-    alterVec = MeasureAlterVec(cellSize);
+    if (width != screenWidth || height != screenHeight || (int)cellSize == 0) {
+        if (texture != NULL && img != NULL) {
+            UnloadTexture(*texture);
+            ImageResize(img, width, height);
+            *texture = LoadTextureFromImage(*img);
+        }
+        screenWidth = width;
+        screenHeight = height;
+    }
 }
 
 void UpdateMobiObj(MobiObj& obj) {
-    if ((int)player.curPos.x == goal.x && (int)player.curPos.y == goal.y) gameWon = true;
-
     if (obj.isMoving && obj.curPos.x * obj.dirX >= obj.tarPos.x * obj.dirX && obj.curPos.y * obj.dirY >= obj.tarPos.y * obj.dirY) {
         obj.isMoving = false;
         obj.speed = (Vector2){0, 0};

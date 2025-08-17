@@ -31,8 +31,6 @@ void GenerateMaze(int inputCol, int inputRow) {
 
     InitializeMaze();
     CreateMaze(0, 0);
-
-    PlayerInfo();
 }
 void InitializeMaze() {
     for (int i = 0; i < col; i++) {

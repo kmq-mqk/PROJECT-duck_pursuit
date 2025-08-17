@@ -39,24 +39,26 @@ void GameStart(){
     InitAudioDevice();
 
     // OPENING background:
-    Image *background = new Image {LoadImage("resources/background.png")};
+    Image *background = new Image {LoadImage("resources/image/background.png")};
+    Texture2D bgTexture = LoadTextureFromImage(*background);
 
-    Image *playButton = new Image {LoadImage("resources/playbutton.png")};
+    Image *playButton = new Image {LoadImage("resources/image/playbutton.png")};
     ImageResize(playButton, 180, 60);
     Texture2D playButtonTexTure = LoadTextureFromImage(*playButton);
      
-    Image *playButton2 = new Image {LoadImage("resources/playbutton2.png")};
+    Image *playButton2 = new Image {LoadImage("resources/image/playbutton2.png")};
     ImageResize(playButton2, 180, 60);
     Texture2D playButtonTexTure2 = LoadTextureFromImage(*playButton2);
     //-------------------
     //ENDING background:
-    Image *background2 = new Image {LoadImage("resources/ending.png")};
+    Image *background2 = new Image {LoadImage("resources/image/ending.png")};
+    Texture2D bgTexture2 = LoadTextureFromImage(*background2);
     
-    Image *endButton = new Image {LoadImage("resources/endbutton.png")};
+    Image *endButton = new Image {LoadImage("resources/image/endbutton.png")};
     ImageResize(endButton, 180, 60);
     Texture2D endButtonTexTure = LoadTextureFromImage(*endButton);
 
-    Image *endButton2 = new Image {LoadImage("resources/endbutton2.png")};
+    Image *endButton2 = new Image {LoadImage("resources/image/endbutton2.png")};
     ImageResize(endButton2, 180, 60);
     Texture2D endButtonTexTure2 = LoadTextureFromImage(*endButton2);
     //-------------------
@@ -67,10 +69,7 @@ void GameStart(){
         switch (currentScreen){
             case OPENING:
             {
-                UpdateRender();
-
-                ImageResize(background, screenWidth, screenHeight);
-                Texture2D bgTexture = LoadTextureFromImage(*background);
+                UpdateRender(&bgTexture, background);
                 
                 BeginDrawing();
                     DrawTextureV(bgTexture, {0,0}, WHITE);
@@ -89,13 +88,15 @@ void GameStart(){
                             
                             mazeTexture = LoadRenderTexture(screenWidth, screenHeight);
                             
-                            GenerateMaze(4, 10);
+                            GenerateMaze(4, 4);
                             AddLoops(5);
+
+                            cellSize = MeasureCellSize();
+                            alterVec = MeasureAlterVec(cellSize);      
                         }
                     }
                 EndDrawing();
 
-                UnloadTexture(bgTexture);
             }break;
             case GAMEPLAY:
             {
@@ -109,6 +110,8 @@ void GameStart(){
                 }
 
 				UpdateMobiObj(player);
+
+                WinCheck();
 				InputMove();
                 Render(alterVec, cellSize, 0.5);
 
@@ -123,10 +126,7 @@ void GameStart(){
 
             case ENDING:
             {
-                UpdateRender();
-
-                ImageResize(background2, screenWidth, screenHeight);
-                Texture2D bgTexture2 = LoadTextureFromImage(*background2);
+                UpdateRender(&bgTexture2, background2);
 
                 BeginDrawing();
                     ClearBackground(BLACK);
@@ -142,13 +142,14 @@ void GameStart(){
                 EndDrawing();
                 init = false;
 
-                UnloadTexture(bgTexture2);
             }break;
             default: break;
         }
     }
 
+    UnloadTexture(bgTexture);
     UnloadTexture(playButtonTexTure);
+    UnloadTexture(bgTexture2);
     UnloadTexture(playButtonTexTure2);
     UnloadTexture(endButtonTexTure);
     UnloadTexture(endButtonTexTure2);

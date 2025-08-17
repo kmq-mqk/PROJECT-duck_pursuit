@@ -6,7 +6,7 @@
 #include <raylib.h>
 
 
-void UpdateRender();
+void UpdateRender(Texture2D*, Image*);
 void UpdateMobiObj(MobiObj&);
 
 Vector2 MeasureAlterVec(double cellSize);
