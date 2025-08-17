@@ -2,7 +2,6 @@
 #include "map.hpp"
 
 #include <raylib.h>
-#include <stdio.h>
 
 // ALL NECESSARY GLOBAL VARIABLES FOR LOGIC COME FROM HERE
 bool gameWon = false;
