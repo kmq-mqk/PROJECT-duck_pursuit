@@ -24,7 +24,6 @@ typedef enum GameScreen{
 
 
 void GameStart();
-void Free();
 
 using namespace std;
 

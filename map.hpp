@@ -33,4 +33,7 @@ void ReadTxt(int j, char* line, int n);
 void LoadMap(char* fileName);
 void WriteMap(char* fileName);
 
+void ViewMap(char* fileName);
+void MapInterface();
+
 #endif

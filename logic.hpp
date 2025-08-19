@@ -5,5 +5,6 @@
 void MovePlayer(int dx, int dy);
 void InputMove();
 void WinCheck();
+void ResetVal();
 
 #endif

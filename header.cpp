@@ -30,9 +30,6 @@ extern MobiObj player;
 extern Vector2 alterVec;
 extern double cellSize;
 
-extern int col;
-// variables that need to be freed
-extern Cell** maze;
 
 void GameStart(){
     GameScreen currentScreen = OPENING;
@@ -40,6 +37,7 @@ void GameStart(){
 
     // OPENING background:
     Image *background = new Image {LoadImage("resources/image/background.png")};
+	ImageResize(background, screenWidth, screenHeight);
     Texture2D bgTexture = LoadTextureFromImage(*background);
 
     Image *playButton = new Image {LoadImage("resources/image/playbutton.png")};
@@ -52,6 +50,7 @@ void GameStart(){
     //-------------------
     //ENDING background:
     Image *background2 = new Image {LoadImage("resources/image/ending.png")};
+	ImageResize(background2, screenWidth, screenHeight);
     Texture2D bgTexture2 = LoadTextureFromImage(*background2);
     
     Image *endButton = new Image {LoadImage("resources/image/endbutton.png")};
@@ -88,7 +87,7 @@ void GameStart(){
                             
                             mazeTexture = LoadRenderTexture(screenWidth, screenHeight);
                             
-                            GenerateMaze(4, 4);
+                            GenerateMaze(5, 5);
                             AddLoops(5);
 
                             cellSize = MeasureCellSize();
@@ -100,7 +99,7 @@ void GameStart(){
             }break;
             case GAMEPLAY:
             {
-                // THE BLOCK BELOW ARE IMPORTANT  !!!
+                // IMPORTANT BLOCK BELOW  !!!
                 if (!init) {
                     lastAutoRotateTime = GetTime();
                     autoRotateInterval = 2.0f;
@@ -116,7 +115,7 @@ void GameStart(){
                 Render(alterVec, cellSize, 0.5);
 
                 if (gameWon){
-                    Free();
+					ResetVal();
                     currentScreen = ENDING;
                     UnloadRenderTexture(mazeTexture);
 
@@ -164,16 +163,4 @@ void GameStart(){
     delete endButton2;
 
     CloseAudioDevice();
-}
-
-void Free() {
-    if (maze == NULL)
-        return;
-
-    for (int i = 0; i < col; i++) {
-        free(maze[i]);
-        maze[i] = NULL;
-    }
-    free(maze);
-    maze = NULL;
 }

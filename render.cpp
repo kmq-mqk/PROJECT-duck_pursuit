@@ -28,7 +28,7 @@ void UpdateRender(Texture2D* texture, Image* img) {
     int width = GetScreenWidth();
     int height = GetScreenHeight();
 
-    if (width != screenWidth || height != screenHeight || (int)cellSize == 0) {
+    if (width != screenWidth || height != screenHeight || (texture != NULL && (texture->width != width || texture->height != height))) {
         if (texture != NULL && img != NULL) {
             UnloadTexture(*texture);
             ImageResize(img, width, height);
@@ -37,6 +37,19 @@ void UpdateRender(Texture2D* texture, Image* img) {
         screenWidth = width;
         screenHeight = height;
     }
+}
+void UpdateRender(RenderTexture2D* texture) {
+	int width = GetScreenWidth();
+	int height = GetScreenHeight();
+
+	if (width != screenWidth || height != screenHeight || (texture != NULL && (texture->texture.width != width || texture->texture.height != height))) {
+		if (IsRenderTextureValid(*texture)) {
+			UnloadRenderTexture(*texture);
+			*texture = LoadRenderTexture(width, height);
+		}
+		screenWidth = width;
+		screenHeight = height;
+	}
 }
 
 void UpdateMobiObj(MobiObj& obj) {
@@ -61,7 +74,8 @@ void Render(Vector2 alterVec, double cellSize, double rotateDuration) {
         DrawPlayer(alterVec, cellSize);
     EndTextureMode();
 
-    Rotate(rotateDuration);
+    if (rotateDuration > 0)
+		Rotate(rotateDuration);
 
     // Sau đó xoay texture lên màn hình
     BeginDrawing();
@@ -115,13 +129,29 @@ void Rotate(double rotateDuration) {
 void DrawMaze(Vector2 alterVec, double cellSize) {
     for (int x = 0; x < col; x++) {
         for (int y = 0; y < row; y++) {
-            int posX = x * cellSize + alterVec.x;
-            int posY = y * cellSize + alterVec.y;
-            if (maze[x][y].topWall)  DrawLine(posX, posY, posX + cellSize, posY, WHITE);
-            if (maze[x][y].rightWall)  DrawLine(posX + cellSize, posY, posX + cellSize, posY + cellSize, WHITE);
-            if (maze[x][y].leftWall)  DrawLine(posX, posY , posX, posY + cellSize, WHITE);
-            if (maze[x][y].bottomWall)  DrawLine(posX, posY + cellSize, posX + cellSize, posY + cellSize, WHITE);
+            double posX = cellSize * x + alterVec.x;
+            double posY = cellSize * y + alterVec.y;
 
+            if (maze[x][y].topWall) {
+				Vector2 start = {posX, posY};
+				Vector2 end = {posX + cellSize, posY};
+			   	DrawLineV(start, end, WHITE);
+			}
+            if (maze[x][y].rightWall) {
+				Vector2 start = {posX + cellSize, posY};
+				Vector2 end = {posX + cellSize, posY + cellSize};
+			   	DrawLineV(start, end, WHITE);
+			}
+            if (maze[x][y].leftWall) {
+				Vector2 start = {posX, posY};
+				Vector2 end = {posX, posY + cellSize};
+			   	DrawLineV(start, end, WHITE);
+			}
+            if (maze[x][y].bottomWall) {
+				Vector2 start = {posX, posY + cellSize};
+				Vector2 end = {posX + cellSize, posY + cellSize};
+			   	DrawLineV(start, end, WHITE);
+			}
         }
     }
 }

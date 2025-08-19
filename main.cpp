@@ -5,7 +5,8 @@
     EXTERNAL VARIABLES
 
 // map.cpp
-extern Position player, goal;
+extern Position goal;
+extern MobiObj player;
 extern Cell** maze;
 extern int col, row;
 // render.cpp

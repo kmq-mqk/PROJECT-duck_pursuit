@@ -7,6 +7,7 @@
 
 
 void UpdateRender(Texture2D*, Image*);
+void UpdateRender(RenderTexture2D*);
 void UpdateMobiObj(MobiObj&);
 
 Vector2 MeasureAlterVec(double cellSize);

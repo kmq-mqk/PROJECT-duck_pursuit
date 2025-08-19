@@ -1,4 +1,6 @@
 #include "map.hpp"
+#include "logic.hpp"
+#include "render.hpp"
 
 #include <raylib.h>
 
@@ -16,6 +18,10 @@ int col;    // Ox
 int row;    // Oy
 Position goal;
 MobiObj player;
+
+// EXTERNAL VARIABLES
+extern int screenWidth, screenHeight;
+extern RenderTexture2D mazeTexture;
 
 
 void GenerateMaze(int inputCol, int inputRow) {
@@ -168,6 +174,7 @@ void LoadMap(char* fileName) {
     ifstream fin;
     fin.open(fileName);
     fin >> row >> col;
+	fin.ignore();
 
     // INIT MAZE
 	maze = (Cell**)calloc(col, sizeof(Cell*));
@@ -184,54 +191,80 @@ void LoadMap(char* fileName) {
     fin.close();
 }
 void WriteMap(char* fileName) {
-    int len = strlen(fileName);
-    char* logFileName = (char*)calloc(1 + len + strlen(".log") + 1, sizeof(char));
-    int i = 0;
+	int len = strlen(fileName);
+	char* logFileName = (char*)calloc(1 + len + strlen(".log") + 1, sizeof(char));
+	int i = 0;
 	logFileName[i++] = '.';
-    for (;i <= len; i++)
-        logFileName[i] = fileName[i - 1];
-    sprintf(logFileName, "%s.log", logFileName);
+	for (;i <= len; i++)
+	    logFileName[i] = fileName[i - 1];
+	sprintf(logFileName, "%s.log", logFileName);
+	
+	
+	FILE* fmap = fopen(fileName, "w");
+	FILE* flog = fopen(logFileName, "w");
+	free(logFileName);
+	
+	fprintf(fmap, "%d %d\n", col, row);
+	fprintf(flog, "%d %d\n", col, row);
+	
+	for (int j = 0; j < row; j++) {
+	    for (int i = 0; i < col; i++) {
+	        fprintf(flog, "maze[%d][%d] = \t", i, j);
+	        if (player.curPos.x == i && player.curPos.y == j) {
+	            fprintf(flog, "SRC-");
+	            fprintf(fmap, "a");
+	        }
+	        if (goal.x == i && goal.y == j) {
+	            fprintf(flog, "DEST-");
+	            fprintf(fmap, "b");
+	        }
+	        if (maze[i][j].topWall == true) {
+	            fprintf(flog, "top-");
+	            fprintf(fmap, "u");
+	        }
+	        if (maze[i][j].bottomWall == true) {
+	            fprintf(flog, "bot-");
+	            fprintf(fmap, "d");
+	        }
+	        if (maze[i][j].leftWall == true) {
+	            fprintf(flog, "left-");
+	            fprintf(fmap, "l");
+	        }
+	        if (maze[i][j].rightWall == true) {
+	            fprintf(flog, "right-");          
+	            fprintf(fmap, "r");
+	        }
+			fprintf(fmap, "|");
+	    }
+		fprintf(flog, "\n");
+		fprintf(fmap, "\n");
+	}
+	
+	fclose(fmap);
+	fclose(flog);
+}
 
+void ViewMap(char* fileName) {
+	int size = strlen("Viewing map: ") + strlen(fileName) + 1;
+	char* title = (char*)calloc(size, sizeof(char));
+	sprintf(title, "Viewing map: %s", fileName);
+	InitWindow(screenWidth, screenHeight, title);
+	SetWindowState(FLAG_WINDOW_RESIZABLE);
 
-    FILE* fmap = fopen(fileName, "w");
-    FILE* flog = fopen(logFileName, "w");
-    free(logFileName);
+	mazeTexture = LoadRenderTexture(screenWidth, screenHeight);
+	LoadMap(fileName);
 
-    fprintf(fmap, "%d %d\n", col, row);
-    fprintf(flog, "%d %d\n", col, row);
+	EnableEventWaiting();
+	while (!WindowShouldClose()) {
+		UpdateRender(&mazeTexture);
+		double cell = MeasureCellSize();
+		Vector2 alter = MeasureAlterVec(cell);
 
-    for (int j = 0; j < row; j++) {
-        for (int i = 0; i < col; i++) {
-            fprintf(flog, "maze[%d][%d] = \t", i, j);
-            if (player.curPos.x == i && player.curPos.y == j) {
-                fprintf(flog, "SRC-");
-                fprintf(fmap, "a");
-            }
-            if (goal.x == i && goal.y == j) {
-                fprintf(flog, "DEST-");
-                fprintf(fmap, "b");
-            }
-            if (maze[i][j].topWall == true) {
-                fprintf(flog, "top-");
-                fprintf(fmap, "u");
-            }
-            if (maze[i][j].bottomWall == true) {
-                fprintf(flog, "bot-");
-                fprintf(fmap, "d");
-            }
-            if (maze[i][j].leftWall == true) {
-                fprintf(flog, "left-");
-                fprintf(fmap, "l");
-            }
-            if (maze[i][j].rightWall == true) {
-                fprintf(flog, "right-");          
-                fprintf(fmap, "r");
-            }
-            fprintf(flog, "\n");
-            fprintf(fmap, "|");
-        }
-    }
+		Render(alter, cell, -1);
+	}
+	DisableEventWaiting();
 
-    fclose(fmap);
-    fclose(flog);
+	UnloadRenderTexture(mazeTexture);
+	ResetVal();
+	CloseWindow();
 }

@@ -2,6 +2,7 @@
 #include "map.hpp"
 
 #include <raylib.h>
+#include <stdlib.h>
 
 // ALL NECESSARY GLOBAL VARIABLES FOR LOGIC COME FROM HERE
 bool gameWon = false;
@@ -62,9 +63,21 @@ void InputMove() {
 void WinCheck() {
     if ((int)player.curPos.x == goal.x && (int)player.curPos.y == goal.y) {
         gameWon = true;
-        isRotating = false;
-        curAngle = targetAngle = dDeg = 0;
-        cellSize = 0;
-        alterVec = (Vector2){0, 0};
     }
+}
+
+void ResetVal() {
+    if (maze != NULL) {
+		for (int i = 0; i < col; i++) {
+	        free(maze[i]);
+	        maze[i] = NULL;
+	    }
+		free(maze);
+		maze = NULL;
+	}
+
+	isRotating = false;
+	curAngle = targetAngle = dDeg = 0;
+	cellSize = 0;
+	alterVec = (Vector2){0, 0};
 }
