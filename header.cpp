@@ -20,55 +20,65 @@ void Penguin::Update() {
 
 #include <stdlib.h>
 
-extern bool gameWon;
-extern RenderTexture2D mazeTexture;
-extern double lastAutoRotateTime;
-extern float autoRotateInterval;
-
-extern int screenWidth, screenHeight;
-extern MobiObj player;
-extern Vector2 alterVec;
-extern double cellSize;
+//extern bool gameWon;
+//extern RenderTexture2D mazeTexture;
+//extern double lastAutoRotateTime;
+//extern float autoRotateInterval;
+//
+extern Vector2 screenSize;
+//extern MobiObj player;
+//extern Vector2 alterVec;
+//extern double cellSize;
 
 
 void GameStart(){
+    bool init = false;
+	bool gameWon = false;
+	int screenWidth = (int)screenSize.x;
+	int screenHeight = (int)screenSize.y;
+	RenderTexture lastTexture = LoadRenderTexture(screenWidth, screenHeight);
+	MobiObj* mobi;
+	RotateObj* rota;
+
     GameScreen currentScreen = OPENING;
     InitAudioDevice();
 
     // OPENING background:
-    Image *background = new Image {LoadImage("resources/image/background.png")};
+    Image *background = new Image {LoadImage("assets/image/background/background.png")};
 	ImageResize(background, screenWidth, screenHeight);
     Texture2D bgTexture = LoadTextureFromImage(*background);
 
-    Image *playButton = new Image {LoadImage("resources/image/playbutton.png")};
+    Image *playButton = new Image {LoadImage("assets/image/button/playbutton.png")};
     ImageResize(playButton, 180, 60);
     Texture2D playButtonTexTure = LoadTextureFromImage(*playButton);
      
-    Image *playButton2 = new Image {LoadImage("resources/image/playbutton2.png")};
+    Image *playButton2 = new Image {LoadImage("assets/image/button/playbutton2.png")};
     ImageResize(playButton2, 180, 60);
     Texture2D playButtonTexTure2 = LoadTextureFromImage(*playButton2);
     //-------------------
     //ENDING background:
-    Image *background2 = new Image {LoadImage("resources/image/ending.png")};
+    Image *background2 = new Image {LoadImage("assets/image/background/ending.png")};
 	ImageResize(background2, screenWidth, screenHeight);
     Texture2D bgTexture2 = LoadTextureFromImage(*background2);
     
-    Image *endButton = new Image {LoadImage("resources/image/endbutton.png")};
+    Image *endButton = new Image {LoadImage("assets/image/button/endbutton.png")};
     ImageResize(endButton, 180, 60);
     Texture2D endButtonTexTure = LoadTextureFromImage(*endButton);
 
-    Image *endButton2 = new Image {LoadImage("resources/image/endbutton2.png")};
+    Image *endButton2 = new Image {LoadImage("assets/image/button/endbutton2.png")};
     ImageResize(endButton2, 180, 60);
     Texture2D endButtonTexTure2 = LoadTextureFromImage(*endButton2);
     //-------------------
-
-    bool init = false;
    
+
     while(!WindowShouldClose()) {
         switch (currentScreen){
             case OPENING:
             {
-                UpdateRender(&bgTexture, background);
+				screenWidth = GetScreenWidth();
+				screenHeight = GetScreenHeight();
+
+                UpdateTextureFromImage(&bgTexture, background, screenWidth, screenHeight);
                 
                 BeginDrawing();
                     DrawTextureV(bgTexture, {0,0}, WHITE);
@@ -81,11 +91,11 @@ void GameStart(){
                             //go to GAMEPLAY
                             gameWon = false;
                             currentScreen = GAMEPLAY;   
-                            if (mazeTexture.id != 0) {
-                                UnloadRenderTexture(mazeTexture);
+                            if (lastTexture.id != 0) {
+                                UnloadRenderTexture(lastTexture);
                             }
                             
-                            mazeTexture = LoadRenderTexture(screenWidth, screenHeight);
+                            lastTexture = LoadRenderTexture(screenWidth, screenHeight);
                             
                             GenerateMaze(5, 5);
                             AddLoops(5);
@@ -99,33 +109,39 @@ void GameStart(){
             }break;
             case GAMEPLAY:
             {
+				screenWidth = GetScreenWidth();
+				screenHeight = GetScreenHeight();
+
                 // IMPORTANT BLOCK BELOW  !!!
-                if (!init) {
-                    lastAutoRotateTime = GetTime();
-                    autoRotateInterval = 2.0f;
-                    init = true;
+				if (!init) {
+					lastAutoRotateTime = GetTime();
+					autoRotateInterval = 2.0f;
+					init = true;
+					
+//					ClearWindowState(FLAG_WINDOW_RESIZABLE);
+				}
 
-                    ClearWindowState(FLAG_WINDOW_RESIZABLE);
-                }
-
-				UpdateMobiObj(player);
+				UpdateRender(&lastTexture, mobi, rota, screenWidth, screenHeight);
 
                 WinCheck();
 				InputMove();
                 Render(alterVec, cellSize, 0.5);
 
-                if (gameWon){
+				if (gameWon){
 					ResetVal();
-                    currentScreen = ENDING;
-                    UnloadRenderTexture(mazeTexture);
-
-                    SetWindowState(FLAG_WINDOW_RESIZABLE);
-                }
+					currentScreen = ENDING;
+					UnloadRenderTexture(lastTexture);
+					
+					SetWindowState(FLAG_WINDOW_RESIZABLE);
+				}
             }break;
 
             case ENDING:
             {
-                UpdateRender(&bgTexture2, background2);
+				screenWidth = GetScreenWidth();
+				screenHeight = GetScreenHeight();
+
+                UpdateTextureFromImage(&bgTexture2, background2, screenWidth, screenHeight);
 
                 BeginDrawing();
                     ClearBackground(BLACK);

@@ -25,7 +25,7 @@ extern bool gameWon;
 
 ------------------ */
 
-extern int screenWidth, screenHeight;
+Vector2 screenSize = {800.0f, 600.0f};
 
 int main() {    
     InitWindow(screenWidth, screenHeight, "Penguin Test");

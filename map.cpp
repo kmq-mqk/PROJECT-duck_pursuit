@@ -13,44 +13,41 @@
 using namespace std;
 
 // ALL NECESSARY GLOBAL VARIABLES FOR MAP COME FROM HERE
-Cell** maze;    // maze[col][row]
-int col;    // Ox
-int row;    // Oy
-Position goal;
-MobiObj player;
+//Cell** maze;    // maze[col][row]
+//int col;    // Ox
+//int row;    // Oy
+//Position goal;
+//MobiObj player;
+//
+//// EXTERNAL VARIABLES
+//extern int screenWidth, screenHeight;
+//extern RenderTexture2D mazeTexture;
 
-// EXTERNAL VARIABLES
-extern int screenWidth, screenHeight;
-extern RenderTexture2D mazeTexture;
 
-
-void GenerateMaze(int inputCol, int inputRow) {
-    col = inputCol;
-    row = inputRow;
-    maze = (Cell**)calloc(col, sizeof(Cell*));
-    for (int i = 0; i < col; i++) {
-        maze[i] = (Cell*)calloc(row,  sizeof(Cell));
+void GenerateMaze(Maze* mazeInfo, int inputCol, int inputRow) {
+    mazeInfo->col = inputCol;
+    mazeInfo->row = inputRow;
+    mazeInfo->maze = (Cell**)calloc(inputCol, sizeof(Cell*));
+    for (int i = 0; i < inputCol; i++) {
+        (mazeInfo->maze)[i] = (Cell*)calloc(inputRow, sizeof(Cell));
     }
 
-    player = (MobiObj) {false, 0, 0, {0,0}, {0,0}, {0,0}};
-    goal = (Position) {col - 1, row - 1};
-
-    InitializeMaze();
-    CreateMaze(0, 0);
+    InitializeMaze(&(mazeInfo->maze), inputCol, inputRow);
+    CreateMaze(&(mazeInfo->maze), inputCol, inputRow, 0, 0);
 }
-void InitializeMaze() {
+void InitializeMaze(Cell*** maze, int col, int row) {
     for (int i = 0; i < col; i++) {
         for (int j = 0; j < row; j++) {
-            maze[i][j].visited = false;
-            maze[i][j].topWall = true;
-            maze[i][j].bottomWall = true;
-            maze[i][j].leftWall = true;
-            maze[i][j].rightWall = true;
+            (*maze)[i][j].visited = false;
+            (*maze)[i][j].topWall = true;
+            (*maze)[i][j].bottomWall = true;
+            (*maze)[i][j].leftWall = true;
+            (*maze)[i][j].rightWall = true;
         }
     }
 }
-void CreateMaze(int x, int y) {
-    maze[x][y].visited = true;
+void CreateMaze(Cell*** maze, int col, int row, int x, int y) {
+    (*maze)[x][y].visited = true;
     while (true) {
         int directions[] = { 0, 1, 2, 3 };
         for (int i = 0; i < 4; i++) {
@@ -68,24 +65,24 @@ void CreateMaze(int x, int y) {
             else if (directions[i] == 2) ny += 1; // Down
             else if (directions[i] == 3) nx -= 1; // Left
             
-            if (nx >= 0 && nx < col && ny >= 0 && ny < row && !maze[nx][ny].visited) {
+            if (nx >= 0 && nx < col && ny >= 0 && ny < row && !(*maze)[nx][ny].visited) {
                 if (directions[i] == 0) {
-                    maze[x][y].topWall = false;
-                    maze[nx][ny].bottomWall = false;
+                    (*maze)[x][y].topWall = false;
+                    (*maze)[nx][ny].bottomWall = false;
                 }
                 else if (directions[i] == 1) {
-                    maze[x][y].rightWall = false;
-                    maze[nx][ny].leftWall = false;
+                    (*maze)[x][y].rightWall = false;
+                    (*maze)[nx][ny].leftWall = false;
                 }
                 else if (directions[i] == 2) {
-                    maze[x][y].bottomWall = false;
-                    maze[nx][ny].topWall = false;
+                    (*maze)[x][y].bottomWall = false;
+                    (*maze)[nx][ny].topWall = false;
                 }
                 else if (directions[i] == 3) {
-                    maze[x][y].leftWall = false;
-                    maze[nx][ny].rightWall = false;
+                    (*maze)[x][y].leftWall = false;
+                    (*maze)[nx][ny].rightWall = false;
                 }
-                CreateMaze(nx, ny);
+                CreateMaze(maze, col, row, nx, ny);
                 moved = true;
                 break;
             }
@@ -93,7 +90,7 @@ void CreateMaze(int x, int y) {
         if (!moved) break; // Try 4 directions but cant => break while
     }
 }
-void AddLoops(int loopCount) {
+void AddLoops(Cell*** maze,int col, int row, int loopCount) {
     int loopsAdded = 0;
     while (loopsAdded < loopCount) {
         int x = GetRandomValue(1, col - 2);
@@ -111,21 +108,21 @@ void AddLoops(int loopCount) {
 
         if (nx >= 0 && ny >= 0 && nx < col && ny < row) {
             // Kiểm tra xem có tường chưa bị phá
-            if (nx == x && ny == y - 1 && maze[x][y].topWall && maze[nx][ny].bottomWall) {
-                maze[x][y].topWall = false;
-                maze[nx][ny].bottomWall = false;
+            if (nx == x && ny == y - 1 && (*maze)[x][y].topWall && (*maze)[nx][ny].bottomWall) {
+                (*maze)[x][y].topWall = false;
+                (*maze)[nx][ny].bottomWall = false;
                 loopsAdded++;
-            } else if (nx == x && ny == y + 1 && maze[x][y].bottomWall && maze[nx][ny].topWall) {
-                maze[x][y].bottomWall = false;
-                maze[nx][ny].topWall = false;
+            } else if (nx == x && ny == y + 1 && (*maze)[x][y].bottomWall && (*maze)[nx][ny].topWall) {
+                (*maze)[x][y].bottomWall = false;
+                (*maze)[nx][ny].topWall = false;
                 loopsAdded++;
-            } else if (nx == x - 1 && ny == y && maze[x][y].leftWall && maze[nx][ny].rightWall) {
-                maze[x][y].leftWall = false;
-                maze[nx][ny].rightWall = false;
+            } else if (nx == x - 1 && ny == y && (*maze)[x][y].leftWall && (*maze)[nx][ny].rightWall) {
+                (*maze)[x][y].leftWall = false;
+                (*maze)[nx][ny].rightWall = false;
                 loopsAdded++;
-            } else if (nx == x + 1 && ny == y && maze[x][y].rightWall && maze[nx][ny].leftWall) {
-                maze[x][y].rightWall = false;
-                maze[nx][ny].leftWall = false;
+            } else if (nx == x + 1 && ny == y && (*maze)[x][y].rightWall && (*maze)[nx][ny].leftWall) {
+                (*maze)[x][y].rightWall = false;
+                (*maze)[nx][ny].leftWall = false;
                 loopsAdded++;
             }
         }
@@ -134,7 +131,7 @@ void AddLoops(int loopCount) {
 
 
 
-void ReadTxt(int j, std::string line, int n) {
+void ReadTxt(Cell*** maze, int j, std::string line, int n) {
 	int i = 0;
 	for (int k = 0; k < n; k++) {
 		char ch = line[k];
@@ -143,25 +140,25 @@ void ReadTxt(int j, std::string line, int n) {
 			case '|':
 				i++;
 				break;
-			case 'a':
-                player.curPos.x = player.tarPos.x = i;
-                player.curPos.y = player.tarPos.y = j;
-				break;
-			case 'b':
-                goal.x = i;
-                goal.y = j;
-				break;
+//			case 'a':
+//                player.curPos.x = player.tarPos.x = i;
+//                player.curPos.y = player.tarPos.y = j;
+//				break;
+//			case 'b':
+//                goal.x = i;
+//                goal.y = j;
+//				break;
 			case 'l':
-				maze[i][j].leftWall = true;
+				(*maze)[i][j].leftWall = true;
 				break;
 			case 'r':
-				maze[i][j].rightWall = true;
+				(*maze)[i][j].rightWall = true;
 				break;
 			case 'u':
-                maze[i][j].topWall = true;
+                (*maze)[i][j].topWall = true;
 				break;
 			case 'd':
-				maze[i][j].bottomWall = true;
+				(*maze)[i][j].bottomWall = true;
 				break;
 			default:
 				fprintf(stderr, "Your .txt map is so ass, unknown character appears\n");
@@ -170,27 +167,32 @@ void ReadTxt(int j, std::string line, int n) {
 		}
 	}
 }
-void LoadMap(char* fileName) {
+void LoadMap(Maze* mazeInfo, char* fileName) {
+	int row, col;
     ifstream fin;
     fin.open(fileName);
     fin >> row >> col;
 	fin.ignore();
 
     // INIT MAZE
-	maze = (Cell**)calloc(col, sizeof(Cell*));
+	mazeInfo->col = col;
+	mazeInfo->row = row;
+
+	mazeInfo->maze = (Cell**)calloc(col, sizeof(Cell*));
+
 	for (int i = 0; i < col; i++)
-		maze[i] = (Cell*)calloc(row, sizeof(Cell));
+		(mazeInfo->maze)[i] = (Cell*)calloc(row, sizeof(Cell));
 
     // READ FILE
     for (int j = 0; j < row; j++) {
 		string line;
 		getline(fin, line);
-		ReadTxt(j, line, line.length());
+		ReadTxt(&(mazeInfo->maze), j, line, line.length());
 	}
 
     fin.close();
 }
-void WriteMap(char* fileName) {
+void WriteMap(const Maze mazeInfo, char* fileName) {
 	int len = strlen(fileName);
 	char* logFileName = (char*)calloc(1 + len + strlen(".log") + 1, sizeof(char));
 	int i = 0;
@@ -203,6 +205,10 @@ void WriteMap(char* fileName) {
 	FILE* fmap = fopen(fileName, "w");
 	FILE* flog = fopen(logFileName, "w");
 	free(logFileName);
+
+	int col = mazeInfo.col;
+	int row = mazeInfo.row;
+	Cell** maze = mazeInfo.maze;
 	
 	fprintf(fmap, "%d %d\n", col, row);
 	fprintf(flog, "%d %d\n", col, row);
@@ -210,14 +216,14 @@ void WriteMap(char* fileName) {
 	for (int j = 0; j < row; j++) {
 	    for (int i = 0; i < col; i++) {
 	        fprintf(flog, "maze[%d][%d] = \t", i, j);
-	        if (player.curPos.x == i && player.curPos.y == j) {
-	            fprintf(flog, "SRC-");
-	            fprintf(fmap, "a");
-	        }
-	        if (goal.x == i && goal.y == j) {
-	            fprintf(flog, "DEST-");
-	            fprintf(fmap, "b");
-	        }
+//	        if (player.curPos.x == i && player.curPos.y == j) {
+//	            fprintf(flog, "SRC-");
+//	            fprintf(fmap, "a");
+//	        }
+//	        if (goal.x == i && goal.y == j) {
+//	            fprintf(flog, "DEST-");
+//	            fprintf(fmap, "b");
+//	        }
 	        if (maze[i][j].topWall == true) {
 	            fprintf(flog, "top-");
 	            fprintf(fmap, "u");
@@ -244,27 +250,28 @@ void WriteMap(char* fileName) {
 	fclose(flog);
 }
 
-void ViewMap(char* fileName) {
-	int size = strlen("Viewing map: ") + strlen(fileName) + 1;
-	char* title = (char*)calloc(size, sizeof(char));
-	sprintf(title, "Viewing map: %s", fileName);
-	InitWindow(screenWidth, screenHeight, title);
-	SetWindowState(FLAG_WINDOW_RESIZABLE);
-
-	mazeTexture = LoadRenderTexture(screenWidth, screenHeight);
-	LoadMap(fileName);
-
-	EnableEventWaiting();
-	while (!WindowShouldClose()) {
-		UpdateRender(&mazeTexture);
-		double cell = MeasureCellSize();
-		Vector2 alter = MeasureAlterVec(cell);
-
-		Render(alter, cell, -1);
-	}
-	DisableEventWaiting();
-
-	UnloadRenderTexture(mazeTexture);
-	ResetVal();
-	CloseWindow();
-}
+// not yet good to use
+//void ViewMap(char* fileName) {
+//	int size = strlen("Viewing map: ") + strlen(fileName) + 1;
+//	char* title = (char*)calloc(size, sizeof(char));
+//	sprintf(title, "Viewing map: %s", fileName);
+//	InitWindow(screenWidth, screenHeight, title);
+//	SetWindowState(FLAG_WINDOW_RESIZABLE);
+//
+//	mazeTexture = LoadRenderTexture(screenWidth, screenHeight);
+//	LoadMap(fileName);
+//
+//	EnableEventWaiting();
+//	while (!WindowShouldClose()) {
+//		UpdateRender(&mazeTexture);
+//		double cell = MeasureCellSize();
+//		Vector2 alter = MeasureAlterVec(cell);
+//
+//		Render(alter, cell, -1);
+//	}
+//	DisableEventWaiting();
+//
+//	UnloadRenderTexture(mazeTexture);
+//	ResetVal();
+//	CloseWindow();
+//}
