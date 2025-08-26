@@ -25,10 +25,10 @@ extern bool gameWon;
 
 ------------------ */
 
-Vector2 screenSize = {800.0f, 600.0f};
+Vector2 initScreenSize = {800.0f, 600.0f};
 
 int main() {    
-    InitWindow(screenWidth, screenHeight, "Penguin Test");
+    InitWindow(initScreenSize.x, initScreenSize.y, "Penguin Test");
     SetWindowState(FLAG_WINDOW_RESIZABLE);
     SetTargetFPS(60);
 

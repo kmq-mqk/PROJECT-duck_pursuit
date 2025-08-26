@@ -57,11 +57,12 @@ static void MobiObj_Draw(Obj* obj, Vector2 alterV) {
 	float radius = (obj->_rt.texture.width < obj->_rt.texture.height) ? obj->_rt.texture.width / 2.0f : obj->_rt.texture.height / 2.0f;
 
 	// when we have the sprite for our dear obj, we don't need the block below
-	BeginTextureMode(obj->_rt);
-		DrawCircleV(pos, radius, GREEN);
-	EndTextureMode();
+//	BeginTextureMode(obj->_rt);
+//		DrawCircleV(pos, radius, GREEN);
+//	EndTextureMode();
 
-	Vector2 renderPos = {alterV.x + mobiObj->_curPos.x * obj->_rt.texture.width, alterV.y + mobiObj->_curPos.y * obj->_rt.texture.height};
+//	Vector2 renderPos = {alterV.x + mobiObj->_curPos.x * obj->_rt.texture.width, alterV.y + mobiObj->_curPos.y * obj->_rt.texture.height};
+	Vector2 renderPos = {0, 0};
 	DrawTextureEx(obj->_rt.texture, renderPos, 0.0f, 1.0f, WHITE);
 }
 
@@ -96,7 +97,7 @@ static void MobiObj_Resize(Obj* obj, int width, int height) {
 
 			Texture tmp = LoadTextureFromImage(mobiObj->_sprite);
 			BeginTextureMode(obj->_rt);
-				ClearBackground(BLANK);
+				ClearBackground(BLACK);
 				DrawTexture(tmp, 0, 0, WHITE);
 			EndTextureMode();
 			UnloadTexture(tmp);
@@ -121,8 +122,6 @@ Obj* New_MobiObj(const char* spriteFile, double movingDuration, int width, int h
 	if (!mobiObj)
 		return NULL;
 
-	// BUILD RENDERTEXTURE FOR MOBIOBJ UP HERE
-
 	mobiObj->base = (Obj){
 		0,
 		movingDuration,
@@ -140,6 +139,7 @@ Obj* New_MobiObj(const char* spriteFile, double movingDuration, int width, int h
 	mobiObj->_sprite = LoadImage(spriteFile);
 	ImageResizeNN(&mobiObj->_sprite, width, height);
 	BeginTextureMode(mobiObj->base._rt);
+		ClearBackground(BLACK);
 		Texture tmp = LoadTextureFromImage(mobiObj->_sprite);
 		DrawTextureEx(tmp, (Vector2){0, 0}, 0.0f, 1.0f, WHITE);
 	EndTextureMode();
@@ -204,7 +204,12 @@ static Maze* GetMazeInfo(RotateObj* rotateObj) {
 static void RotateObj_Move(Obj* obj, MoveArgs args) {
 	RotateObj* rotateObj = (RotateObj*)obj;
 
-	if (obj->_isMoving || (rotateObj->_lastRotateTime > 0 && GetTime() - rotateObj->_lastRotateTime < rotateObj->_rotateInterval))
+	if (rotateObj->_lastRotateTime < 0) {
+		rotateObj->_lastRotateTime = GetTime();
+		return;
+	}
+
+	if (obj->_isMoving || GetTime() - rotateObj->_lastRotateTime < rotateObj->_rotateInterval)
 		return;
 
 	obj->_isMoving = 1;
@@ -253,6 +258,7 @@ static void RotateObj_Resize(Obj* obj, int width, int height) {
 		obj->_rt = LoadRenderTexture(newWidth, newHeight);
 
 		BeginTextureMode(obj->_rt);
+			ClearBackground(BLACK);
 			DrawMaze(*rotateObj);
 		EndTextureMode();
 	}
@@ -314,6 +320,7 @@ Obj* New_RotateObj(MazeLoadingArgs args, double interval, double movingDuration,
 	if (obj->_mazeInfo != NULL)
 		LoadMaze(obj, args);
 	BeginTextureMode(obj->base._rt);
+		ClearBackground(BLACK);
 		DrawMaze(*obj);
 	EndTextureMode();
 

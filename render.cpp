@@ -27,12 +27,6 @@
 //extern MobiObj player;
 
 
-struct RenderList {
-	size_t mobiCount;
-	MobiObj** mobiList;
-	size_t rotateCount;
-	RotateObj** rotateList;
-};
 
 
 //void UpdateRender() {
@@ -68,13 +62,16 @@ void UpdateTextureFromImage(Texture2D* texture, Image* img, int width, int heigh
 }
 
 void UpdateRender(RenderTexture* rt, MobiObj* mobi, RotateObj* rota, int screenWidth, int screenHeight) {
-	double cell = MeasureCellSize((Vector2){(float)screenWidth, (float)screenHeight};
-	bool changed = (rt->texture.width != width || rt->texture.height != height);
+	Vector2 screenSize = {(float)screenWidth, (float)screenHeight};
+	Maze* mazeInfo = ((RotateObj*)rota)->GetMazeInfo((RotateObj*)rota);
+	Vector2 mazeSize = {(float)mazeInfo->col, (float)mazeInfo->row};
+	double cell = MeasureCellSize(screenSize, mazeSize);
+	bool changed = (rt->texture.width != screenWidth || rt->texture.height != screenHeight);
 	if (changed) {
 		UnloadRenderTexture(*rt);
 		*rt = LoadRenderTexture(screenWidth, screenHeight);
-		mobi->base.Resize(mobi, cell, cell);
-		rota->base.Resize(rota, screenWidth, screenHeight);
+		mobi->base.Resize((Obj*)mobi, cell, cell);
+		rota->base.Resize((Obj*)rota, screenWidth, screenHeight);
 	}
 }
 
@@ -85,16 +82,16 @@ void Render(RenderList list, RenderTexture* lastTexture,  Vector2 alterVec, doub
 		for (size_t i = 0; i < list.mobiCount; i++) {
 			list.mobiList[i]->base.Draw(&(list.mobiList[i]->base), alterVec);
 		}
-		for (size_t i = 0; i < list.rotateCount; i++) {
-			list.rotateList[i]->base.Draw(&(list.rotateList[i]->base), alterVec);
-		}
+//		for (size_t i = 0; i < list.rotaCount; i++) {
+//			list.rotaList[i]->base.Draw(&(list.rotaList[i]->base), alterVec);
+//		}
     EndTextureMode();
 
     // Rotate(rotateDuration);
 
     // Sau đó xoay texture lên màn hình
-	float curAngle = (list.rotateList[0]->base.GetPos(&(list.rotateList[0]->base))).x;
-	Vector2 size = list.rotateList[0]->base.GetSize(&(list.rotateList[0]->base));
+	float curAngle = (list.rotaList[0]->base.GetPos(&(list.rotaList[0]->base))).x;
+	Vector2 size = list.rotaList[0]->base.GetSize(&(list.rotaList[0]->base));
 	float width = size.x;
 	float height = size.y;
 

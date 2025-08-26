@@ -44,7 +44,7 @@
 //    }
 //}
 //
-void InputMove(MobiObj* mobiObj, RotateObj* rotateObj) {
+void InputMove(MobiObj* mobiObj, Maze* mazeInfo) {
     const int dx[4] = { 0, 1, 0, -1 };
     const int dy[4] = { -1, 0, 1, 0 };
 
@@ -55,7 +55,7 @@ void InputMove(MobiObj* mobiObj, RotateObj* rotateObj) {
     if (IsKeyPressed(KEY_LEFT))  dir = 3;
 
     if (dir != -1) {
-		MoveArgs args = {rotateObj->GetMazeInfo(rotateObj), dx[dir], dy[dir]};
+		MoveArgs args = {mazeInfo, dx[dir], dy[dir]};
         mobiObj->base.Move(&(mobiObj->base), args);
     }
 }

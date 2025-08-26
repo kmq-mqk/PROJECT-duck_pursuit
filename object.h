@@ -79,7 +79,7 @@ typedef struct RotateObj {
 } RotateObj;
 
 Obj* New_MobiObj(const char* spriteFile, double movingDuration, int width , int height);
-Obj* New_RotateObj(double interval, double movingDuration, int width, int height);
+Obj* New_RotateObj(MazeLoadingArgs args, double interval, double movingDuration, int width, int height);
 
 
 #ifdef __cplusplus
