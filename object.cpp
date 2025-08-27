@@ -84,6 +84,7 @@ static void MobiObj_Update(Obj* obj) {
 		mobiObj->_curPos.y = mobiObj->_tarPos.y;
 	}
 	else if (obj->_isMoving) {
+		printf("DEBUG\n");
 		mobiObj->_curPos.x += GetFrameTime() * mobiObj->_speed.x;
 		mobiObj->_curPos.y += GetFrameTime() * mobiObj->_speed.y;
 	}

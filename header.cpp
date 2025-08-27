@@ -157,6 +157,8 @@ void GameStart(){
 ////                WinCheck();
 				InputMove((MobiObj*)mobi, mazeInfo);
 
+				mobi->Update(mobi);
+
 				Render(list, &lastTexture, alterV, cell);
 //				Render(list, &lastTexture, (Vector2) {0, 0}, 30);
 
