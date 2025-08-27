@@ -87,9 +87,9 @@ void GameStart(){
                     DrawTexture(playButtonTexTure, screenWidth/2 - playButtonTexTure.width/2, screenHeight/2 - playButtonTexTure.height/2 + 150, WHITE);
                     Rectangle playButton_Rec = {screenWidth/2 - 180/2, screenHeight/2 - 60/2 + 150, 180, 60};
 
-				if(CheckCollisionPointRec(GetMousePosition(), playButton_Rec)){
+//				if(CheckCollisionPointRec(GetMousePosition(), playButton_Rec)){
 					DrawTexture(playButtonTexTure2, screenWidth/2 - playButtonTexTure2.width/2, screenHeight/2 - playButtonTexTure2.height/2 + 150, WHITE);
-					if(IsMouseButtonPressed(0)){
+//					if(IsMouseButtonPressed(0)){
 						//go to GAMEPLAY
 //						gameWon = false;
 						currentScreen = GAMEPLAY;   
@@ -118,6 +118,7 @@ void GameStart(){
 							printf("%.2f\t%.2f\n", test->_dir, test->_speed);
 							printf("%.2f\t%.2f\n", test->_lastRotateTime, test->_rotateInterval);
 							printf("%.2f\t%.2f\n", test->_curAngle, test->_tarAngle);
+							ExportImage(mobiList[0]->_sprite, "out.jpeg");
 //							exit(EXIT_SUCCESS);
 
 
@@ -126,8 +127,8 @@ void GameStart(){
 						
 //						cellSize = MeasureCellSize();
 //						alterVec = MeasureAlterVec(cellSize);      
-					}
-				}
+//					}
+//				}
                 EndDrawing();
 
             }break;
@@ -152,24 +153,31 @@ void GameStart(){
 //				}
 
 				UpdateRender(&lastTexture, (MobiObj*)mobi, (RotateObj*)rota, screenWidth, screenHeight);
-
-//                WinCheck();
+//
+////                WinCheck();
 				InputMove((MobiObj*)mobi, mazeInfo);
 
-//				Render(list, &lastTexture, alterV, cell);
-				Render(list, &lastTexture, (Vector2) {0, 0}, 30);
+				Render(list, &lastTexture, alterV, cell);
+//				Render(list, &lastTexture, (Vector2) {0, 0}, 30);
+
+//				WriteMap(*mazeInfo, "map.log");
+//				BeginDrawing();
+//					ClearBackground(BLACK);
+//					rota->Draw(rota, alterV);
+//					mobi->Draw(mobi, alterV);
+//				EndDrawing();
 
 //                Render(alterVec, cellSize, 0.5);
 
-				Vector2 mobiPos = mobi->GetPos(mobi);
-				Vector2 goalPos = {mazeSize.x - 1, mazeSize.y - 1};
-				if (WinCheck(mobiPos, goalPos)) {
-//					ResetVal();
-					currentScreen = ENDING;
-					UnloadRenderTexture(lastTexture);
-					
-//					SetWindowState(FLAG_WINDOW_RESIZABLE);
-				}
+//				Vector2 mobiPos = mobi->GetPos(mobi);
+//				Vector2 goalPos = {mazeSize.x - 1, mazeSize.y - 1};
+//				if (WinCheck(mobiPos, goalPos)) {
+////					ResetVal();
+//					currentScreen = ENDING;
+//					UnloadRenderTexture(lastTexture);
+//					
+////					SetWindowState(FLAG_WINDOW_RESIZABLE);
+//				}
             }break;
 
             case ENDING:

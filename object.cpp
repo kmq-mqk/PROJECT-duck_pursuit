@@ -5,7 +5,7 @@
 
 
 static Vector2 Obj_GetSize(Obj* obj) {
-	return (Vector2){(float)obj->_rt.texture.width, (float)obj->_rt.texture.height};
+	return (Vector2){(float)obj->_width, (float)obj->_height};
 }
 
 // ******* PLAYER'S SECTION BEGINS *******
@@ -22,9 +22,10 @@ static void MobiObj_Move(Obj* obj, const MoveArgs args) {
 	int dy = args.dy;
 	MobiObj* mobiObj = (MobiObj*)obj;
 
-	if (mobiObj->base._isMoving || (dx == dy && 1 == dx))
+	if (mobiObj->base._isMoving)
 		return;
 
+	printf("BLAAAAA\n");
 	const int x = (int)mobiObj->_curPos.x;
 	const int y = (int)mobiObj->_curPos.y;
 	const int newX = x + dx;
@@ -49,21 +50,28 @@ static void MobiObj_Move(Obj* obj, const MoveArgs args) {
 	mobiObj->_speed.y = (mobiObj->_tarPos.y - mobiObj->_curPos.y) / movingDuration;
 	mobiObj->_dirX = 1 - 2 * (mobiObj->_speed.x < 0);
 	mobiObj->_dirY = 1 - 2 * (mobiObj->_speed.y < 0);
+
+	printf("isMoving == %d\n", mobiObj->base._isMoving);
+	printf("curPos == [%.2f\t%.2f]\n", mobiObj->_curPos.x, mobiObj->_curPos.y);
+	printf("tarPos == [%.2f\t%.2f]\n", mobiObj->_tarPos.x, mobiObj->_tarPos.y);
+	printf("speed == [%.2f\t%.2f]\n", mobiObj->_speed.x, mobiObj->_speed.y);
+	printf("dir == [%d\t%d]\n", mobiObj->_dirX, mobiObj->_dirY);
 }
 
 static void MobiObj_Draw(Obj* obj, Vector2 alterV) {
 	MobiObj* mobiObj = (MobiObj*)obj;
-	Vector2 pos = {obj->_rt.texture.width / 2.0f, obj->_rt.texture.height / 2.0f}; 
-	float radius = (obj->_rt.texture.width < obj->_rt.texture.height) ? obj->_rt.texture.width / 2.0f : obj->_rt.texture.height / 2.0f;
+//	Vector2 pos = {obj->_rt.texture.width / 2.0f, obj->_rt.texture.height / 2.0f}; 
+//	float radius = (obj->_rt.texture.width < obj->_rt.texture.height) ? obj->_rt.texture.width / 2.0f : obj->_rt.texture.height / 2.0f;
 
 	// when we have the sprite for our dear obj, we don't need the block below
 //	BeginTextureMode(obj->_rt);
 //		DrawCircleV(pos, radius, GREEN);
 //	EndTextureMode();
 
-//	Vector2 renderPos = {alterV.x + mobiObj->_curPos.x * obj->_rt.texture.width, alterV.y + mobiObj->_curPos.y * obj->_rt.texture.height};
-	Vector2 renderPos = {0, 0};
-	DrawTextureEx(obj->_rt.texture, renderPos, 0.0f, 1.0f, WHITE);
+	Vector2 renderPos = {alterV.x + mobiObj->_curPos.x * obj->_width, alterV.y + mobiObj->_curPos.y * obj->_height};
+//	Vector2 renderPos = {0, 0};
+//
+	DrawTextureEx(mobiObj->_texture, renderPos, 0.0f, 1.0f, WHITE);
 }
 
 static void MobiObj_Update(Obj* obj) {
@@ -82,25 +90,31 @@ static void MobiObj_Update(Obj* obj) {
 }
 
 static void MobiObj_Resize(Obj* obj, int width, int height) {
-	int newWidth = (width != -1) ? width : obj->_rt.texture.width;
-	int newHeight = (height != -1) ? height : obj->_rt.texture.height;
-	bool changed = (newWidth != obj->_rt.texture.width || newHeight != obj->_rt.texture.height);
-
 	MobiObj* mobiObj = (MobiObj*)obj;
+
+	int newWidth = (width != -1) ? width : mobiObj->_sprite.width;
+	int newHeight = (height != -1) ? height : mobiObj->_sprite.height;
+	bool changed = (newWidth != mobiObj->_sprite.width || newHeight != mobiObj->_sprite.height);
+
 	if (changed) {
 		if (IsImageValid(mobiObj->_sprite)) {
 			ImageResizeNN(&mobiObj->_sprite, newWidth, newHeight);
-			if (IsRenderTextureValid(obj->_rt))
-				UnloadRenderTexture(obj->_rt);
+			if (IsTextureValid(mobiObj->_texture)) {
+					UnloadTexture(mobiObj->_texture);
+					mobiObj->_texture = LoadTextureFromImage(mobiObj->_sprite);
+			}
 
-			obj->_rt = LoadRenderTexture(newWidth, newHeight);
-
-			Texture tmp = LoadTextureFromImage(mobiObj->_sprite);
-			BeginTextureMode(obj->_rt);
-				ClearBackground(BLACK);
-				DrawTexture(tmp, 0, 0, WHITE);
-			EndTextureMode();
-			UnloadTexture(tmp);
+//			if (IsRenderTextureValid(obj->_rt))
+//				UnloadRenderTexture(obj->_rt);
+//
+//			obj->_rt = LoadRenderTexture(newWidth, newHeight);
+//
+//			Texture tmp = LoadTextureFromImage(mobiObj->_sprite);
+//			BeginTextureMode(obj->_rt);
+//				ClearBackground(BLACK);
+//				DrawTexture(tmp, 0, 0, WHITE);
+//			EndTextureMode();
+//			UnloadTexture(tmp);
 		}
 	}
 }
@@ -110,8 +124,8 @@ static void MobiObj_Free(Obj* obj) {
 
 	if (IsImageValid(mobiObj->_sprite))
 		UnloadImage(mobiObj->_sprite);
-	if (IsRenderTextureValid(obj->_rt))
-		UnloadRenderTexture(obj->_rt);
+//	if (IsRenderTextureValid(obj->_rt))
+//		UnloadRenderTexture(obj->_rt);
 
 	free(mobiObj);
 }
@@ -125,7 +139,7 @@ Obj* New_MobiObj(const char* spriteFile, double movingDuration, int width, int h
 	mobiObj->base = (Obj){
 		0,
 		movingDuration,
-		LoadRenderTexture(width, height),
+		width - 2, height - 2,
 
 		MobiObj_GetPos,
 		Obj_GetSize,
@@ -137,14 +151,9 @@ Obj* New_MobiObj(const char* spriteFile, double movingDuration, int width, int h
 	};
 	
 	mobiObj->_sprite = LoadImage(spriteFile);
-	ImageResizeNN(&mobiObj->_sprite, width, height);
-	BeginTextureMode(mobiObj->base._rt);
-		ClearBackground(BLACK);
-		Texture tmp = LoadTextureFromImage(mobiObj->_sprite);
-		DrawTextureEx(tmp, (Vector2){0, 0}, 0.0f, 1.0f, WHITE);
-	EndTextureMode();
+	ImageResizeNN(&(mobiObj->_sprite), width, height);
+	mobiObj->_texture = LoadTextureFromImage(mobiObj->_sprite);
 
-	mobiObj->base._rt.texture = LoadTextureFromImage(mobiObj->_sprite);
 	mobiObj->_dirX = mobiObj->_dirY = 0;
 	mobiObj->_speed = mobiObj->_curPos = mobiObj->_tarPos = (Vector2){0, 0};
 
@@ -156,17 +165,19 @@ Obj* New_MobiObj(const char* spriteFile, double movingDuration, int width, int h
 
 // ******* MAZE'S SECTION BEGINS *******
 
-static void DrawMaze(RotateObj rotateObj) {
+static void DrawMaze(RotateObj rotateObj, Vector2 alterV) {
 	int col = rotateObj._mazeInfo->col;
 	int row = rotateObj._mazeInfo->row;
 	Cell** maze = rotateObj._mazeInfo->maze;
-	float cellWidth = (float)rotateObj.base._rt.texture.width / col;
-	float cellHeight = (float)rotateObj.base._rt.texture.height / row;
+//	float cellWidth = (float)rotateObj.base._width / col;
+//	float cellHeight = (float)rotateObj.base._height / row;
+	float cellWidth = (float)rotateObj.base._width;
+	float cellHeight = (float)rotateObj.base._height;
 
     for (int x = 0; x < col; x++) {
         for (int y = 0; y < row; y++) {
-            float posX = cellWidth * x;
-            float posY = cellHeight * y;
+            float posX = cellWidth * x + alterV.x;
+            float posY = cellHeight * y + alterV.y;
 
             if (maze[x][y].topWall) {
 				Vector2 start = {posX, posY};
@@ -224,7 +235,9 @@ static void RotateObj_Move(Obj* obj, MoveArgs args) {
 	rotateObj->_lastRotateTime = GetTime();
 }
 static void RotateObj_Draw(Obj* obj, Vector2 alterV) {
-	DrawTextureEx(obj->_rt.texture, alterV, 0.0f, 1.0f, WHITE);
+//	DrawTextureEx(obj->_rt.texture, alterV, 0.0f, 1.0f, WHITE);
+	RotateObj* rota = (RotateObj*)obj;
+	DrawMaze(*rota, alterV);
 }
 
 static void RotateObj_Update(Obj* obj) {
@@ -247,28 +260,30 @@ static void RotateObj_Update(Obj* obj) {
 }
 
 static void RotateObj_Resize(Obj* obj, int width, int height) {
-	int newWidth = (width != -1) ? width : obj->_rt.texture.width;
-	int newHeight = (height != -1) ? height : obj->_rt.texture.height;
-	bool changed = (newWidth != obj->_rt.texture.width || newHeight != obj->_rt.texture.height);
+	obj->_width = width;
+	obj->_height = height;
+//	int newWidth = (width != -1) ? width : obj->_width;
+//	int newHeight = (height != -1) ? height : obj->_height;
+//	bool changed = (newWidth != obj->_width || newHeight != obj->_height);
 
-	if (changed) {
-		RotateObj* rotateObj = (RotateObj*)obj;
-
-		UnloadRenderTexture(obj->_rt);
-		obj->_rt = LoadRenderTexture(newWidth, newHeight);
-
-		BeginTextureMode(obj->_rt);
-			ClearBackground(BLACK);
-			DrawMaze(*rotateObj);
-		EndTextureMode();
-	}
+//	if (changed) {
+//		RotateObj* rotateObj = (RotateObj*)obj;
+//
+//		UnloadRenderTexture(obj->_rt);
+//		obj->_rt = LoadRenderTexture(newWidth, newHeight);
+//
+//		BeginTextureMode(obj->_rt);
+//			ClearBackground(BLACK);
+//			DrawMaze(*rotateObj);
+//		EndTextureMode();
+//	}
 }
 
 static void RotateObj_Free(Obj* obj) {
 	RotateObj* rotateObj = (RotateObj*)obj;
 
-	if (IsRenderTextureValid(obj->_rt))
-		UnloadRenderTexture(obj->_rt);
+//	if (IsRenderTextureValid(obj->_rt))
+//		UnloadRenderTexture(obj->_rt);
 	Cell** maze = rotateObj->_mazeInfo->maze;
 	int col = rotateObj->_mazeInfo->col;
 	for (int i = 0; i < col; i++) {
@@ -305,7 +320,7 @@ Obj* New_RotateObj(MazeLoadingArgs args, double interval, double movingDuration,
 	obj->base = (Obj){
 		0,
 		movingDuration,
-		LoadRenderTexture(width, height),
+		width, height,
 
 		RotateObj_GetPos,
 		Obj_GetSize,
@@ -319,10 +334,10 @@ Obj* New_RotateObj(MazeLoadingArgs args, double interval, double movingDuration,
 	obj->_mazeInfo = (Maze*)malloc(sizeof(Maze));
 	if (obj->_mazeInfo != NULL)
 		LoadMaze(obj, args);
-	BeginTextureMode(obj->base._rt);
-		ClearBackground(BLACK);
-		DrawMaze(*obj);
-	EndTextureMode();
+//	BeginTextureMode(obj->base._rt);
+//		ClearBackground(BLACK);
+//		DrawMaze(*obj);
+//	EndTextureMode();
 
 	obj->_dir = 0;
 	obj->_speed = obj->_curAngle = obj->_tarAngle = 0.0;

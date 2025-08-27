@@ -71,21 +71,24 @@ void UpdateRender(RenderTexture* rt, MobiObj* mobi, RotateObj* rota, int screenW
 		UnloadRenderTexture(*rt);
 		*rt = LoadRenderTexture(screenWidth, screenHeight);
 		mobi->base.Resize((Obj*)mobi, cell, cell);
-		rota->base.Resize((Obj*)rota, screenWidth, screenHeight);
+		rota->base.Resize((Obj*)rota, cell, cell);
 	}
 }
 
 void Render(RenderList list, RenderTexture* lastTexture,  Vector2 alterVec, double cellSize) {
-    BeginTextureMode(*lastTexture);
+//    BeginTextureMode(*lastTexture);
+	BeginDrawing();
         ClearBackground(BLACK);
 
 		for (size_t i = 0; i < list.mobiCount; i++) {
 			list.mobiList[i]->base.Draw(&(list.mobiList[i]->base), alterVec);
 		}
-//		for (size_t i = 0; i < list.rotaCount; i++) {
-//			list.rotaList[i]->base.Draw(&(list.rotaList[i]->base), alterVec);
-//		}
-    EndTextureMode();
+		for (size_t i = 0; i < list.rotaCount; i++) {
+			list.rotaList[i]->base.Draw(&(list.rotaList[i]->base), alterVec);
+		}
+		
+	EndDrawing();
+//    EnextureMode();
 
     // Rotate(rotateDuration);
 
@@ -95,15 +98,15 @@ void Render(RenderList list, RenderTexture* lastTexture,  Vector2 alterVec, doub
 	float width = size.x;
 	float height = size.y;
 
-    BeginDrawing();
-        ClearBackground(BLACK);
-
-        Rectangle source = { 0, 0, width, -height }; // cần - chiều cao
-        Rectangle dest = { width / 2, height / 2, width, height };
-        Vector2 origin = { width / 2, height / 2 };
-
-        DrawTexturePro((*lastTexture).texture, source, dest, origin, curAngle, WHITE);
-    EndDrawing();
+//    BeginDrawing();
+//        ClearBackground(BLACK);
+//
+//        Rectangle source = { 0, 0, width, -height }; // cần - chiều cao
+//        Rectangle dest = { width / 2, height / 2, width, height };
+//        Vector2 origin = { width / 2, height / 2 };
+//
+//        DrawTexturePro((*lastTexture).texture, source, dest, origin, curAngle, WHITE);
+//    EndDrawing();
 }
 //
 //int CycleAngle(int angle) {

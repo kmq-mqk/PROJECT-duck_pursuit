@@ -46,7 +46,8 @@ typedef struct Obj Obj;
 struct Obj {
     bool _isMoving;
 	double _movingDuration;
-	RenderTexture _rt;
+	int _width, _height;
+//	RenderTexture _rt;
 
 	// METHODS BEGIN *******
 	Vector2 (*GetPos)(Obj*);
@@ -62,6 +63,7 @@ struct Obj {
 typedef struct {
 	Obj base;
 	Image _sprite;
+	Texture _texture;
     int _dirX, _dirY;
     Vector2 _speed;
     Vector2 _curPos, _tarPos;
