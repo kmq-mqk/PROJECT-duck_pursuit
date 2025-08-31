@@ -24,7 +24,7 @@
 
 
 // ---------- FOR MAP GENERATING
-void GenerateMaze(Maze* mazeInfo, int inputCol, int inputRow);
+void GenerateMaze(Maze* mazeInfo, int loop, int inputCol, int inputRow);
 void InitializeMaze(Cell*** maze, int inputCol, int inputRow);
 void CreateMaze(Cell*** maze,int col, int row, int x, int y);
 void AddLoops(Cell*** maze,int col, int row, int loopCount);

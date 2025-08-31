@@ -29,6 +29,7 @@ Vector2 initScreenSize = {800.0f, 600.0f};
 
 int main() {    
     InitWindow(initScreenSize.x, initScreenSize.y, "Penguin Test");
+//    SetWindowState(FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_MAXIMIZED);
     SetWindowState(FLAG_WINDOW_RESIZABLE);
     SetTargetFPS(60);
 

@@ -1,56 +1,8 @@
 #include "render.hpp"
 #include "object.h"
-// #include "map.hpp"
 
 #include <math.h>
 
-// ALL NECESSARY GLOBAL VARIABLES FOR RENDERING COME FROM HERE
-//int screenWidth = 800, screenHeight = 600;
-//RenderTexture2D mazeTexture;
-//double curAngle = 0;
-//double targetAngle = 0;
-//double dDeg = 0;
-//double lastAutoRotateTime;
-//float autoRotateInterval = 1.0f;
-//bool isRotating = false;
-//
-//Vector2 alterVec;
-//double cellSize;
-//double movingDuration = 0.5;
-//
-//// EXTERNAL VARIABLES
-//extern bool gameWon;
-//
-//extern int row, col;
-//extern Cell** maze;
-//extern Position goal;
-//extern MobiObj player;
-
-
-
-
-//void UpdateRender() {
-//    screenWidth = GetScreenWidth();
-//    screenHeight = GetScreenHeight();
-//
-//    cellSize = MeasureCellSize();
-//    alterVec = MeasureAlterVec(cellSize);
-//}
-//
-//void UpdateMobiObj(MobiObj& obj) {
-//    if ((int)player.curPos.x == goal.x && (int)player.curPos.y == goal.y) gameWon = true;
-//
-//    if (obj.isMoving && obj.curPos.x * obj.dirX >= obj.tarPos.x * obj.dirX && obj.curPos.y * obj.dirY >= obj.tarPos.y * obj.dirY) {
-//        obj.isMoving = false;
-//        obj.speed = (Vector2){0, 0};
-//        obj.curPos.x = obj.tarPos.x;
-//        obj.curPos.y = obj.tarPos.y;
-//    }
-//    else if (obj.isMoving) {
-//        obj.curPos.x += GetFrameTime() * obj.speed.x;
-//        obj.curPos.y += GetFrameTime() * obj.speed.y;
-//    }
-//}
 
 void UpdateTextureFromImage(Texture2D* texture, Image* img, int width, int height) {
 	bool changed = (img->width != width || img->height != height);
@@ -63,50 +15,48 @@ void UpdateTextureFromImage(Texture2D* texture, Image* img, int width, int heigh
 
 void UpdateRender(RenderTexture* rt, MobiObj* mobi, RotateObj* rota, int screenWidth, int screenHeight) {
 	Vector2 screenSize = {(float)screenWidth, (float)screenHeight};
-	Maze* mazeInfo = ((RotateObj*)rota)->GetMazeInfo((RotateObj*)rota);
+	Maze* mazeInfo = rota->GetMazeInfo(rota);
 	Vector2 mazeSize = {(float)mazeInfo->col, (float)mazeInfo->row};
 	double cell = MeasureCellSize(screenSize, mazeSize);
 	bool changed = (rt->texture.width != screenWidth || rt->texture.height != screenHeight);
 	if (changed) {
 		UnloadRenderTexture(*rt);
 		*rt = LoadRenderTexture(screenWidth, screenHeight);
+		rota->base.Resize((Obj*)rota, screenWidth, screenHeight);
+		Maze* mazeInfo = ((RotateObj*)rota)->GetMazeInfo(rota);
+		double cell = MeasureCellSize((Vector2){screenWidth, screenHeight}, (Vector2){mazeInfo->col, mazeInfo->row});
 		mobi->base.Resize((Obj*)mobi, cell, cell);
-		rota->base.Resize((Obj*)rota, cell, cell);
 	}
 }
 
-void Render(RenderList list, RenderTexture* lastTexture,  Vector2 alterVec, double cellSize) {
-//    BeginTextureMode(*lastTexture);
-	BeginDrawing();
+void Render(RenderList list, RenderTexture* lastTexture,  Vector2 alterV) {
+    BeginTextureMode(*lastTexture);
         ClearBackground(BLACK);
 
-		for (size_t i = 0; i < list.mobiCount; i++) {
-			list.mobiList[i]->base.Draw(&(list.mobiList[i]->base), alterVec);
-		}
 		for (size_t i = 0; i < list.rotaCount; i++) {
-			list.rotaList[i]->base.Draw(&(list.rotaList[i]->base), alterVec);
+			list.rotaList[i]->base.Draw(&(list.rotaList[i]->base));
 		}
-		
-	EndDrawing();
-//    EnextureMode();
 
-    // Rotate(rotateDuration);
+		for (size_t i = 0; i < list.mobiCount; i++) {
+			list.mobiList[i]->base.Draw(&(list.mobiList[i]->base));
+		}
+    EndTextureMode();
 
     // Sau đó xoay texture lên màn hình
 	float curAngle = (list.rotaList[0]->base.GetPos(&(list.rotaList[0]->base))).x;
-	Vector2 size = list.rotaList[0]->base.GetSize(&(list.rotaList[0]->base));
-	float width = size.x;
-	float height = size.y;
+	
+	int width = lastTexture->texture.width;
+	int height = lastTexture->texture.height;
 
-//    BeginDrawing();
-//        ClearBackground(BLACK);
-//
-//        Rectangle source = { 0, 0, width, -height }; // cần - chiều cao
-//        Rectangle dest = { width / 2, height / 2, width, height };
-//        Vector2 origin = { width / 2, height / 2 };
-//
-//        DrawTexturePro((*lastTexture).texture, source, dest, origin, curAngle, WHITE);
-//    EndDrawing();
+    BeginDrawing();
+        ClearBackground(BLACK);
+
+        Rectangle source = { 0, 0, width, -height }; // cần - chiều cao
+        Rectangle dest = { alterV.x + width / 2, alterV.y + height / 2, width, height };
+        Vector2 origin = { width / 2, height / 2 };
+
+        DrawTexturePro(lastTexture->texture, source, dest, origin, curAngle, WHITE);
+    EndDrawing();
 }
 //
 //int CycleAngle(int angle) {

@@ -5,8 +5,11 @@
 extern "C" {
 #endif
 
+//#include "render.hpp"
+
 #include "raylib.h"
 #include <stdarg.h>
+#include <stdio.h>
 
 
 // -------- DON'T USE DIRECTLY THE VARIABLES WITH LEADING '_' -------
@@ -18,6 +21,7 @@ typedef enum {
 
 typedef struct {
 	LoadType type;
+	int loop;
 	union {
 		Vector2 mazeSize;
 		char* file;
@@ -47,13 +51,12 @@ struct Obj {
     bool _isMoving;
 	double _movingDuration;
 	int _width, _height;
-//	RenderTexture _rt;
 
 	// METHODS BEGIN *******
 	Vector2 (*GetPos)(Obj*);
 	Vector2 (*GetSize)(Obj*);
 	void (*Move)(Obj*, const MoveArgs);
-	void (*Draw)(Obj*, Vector2 alterV);
+	void (*Draw)(Obj*);
 	void (*Update)(Obj*);
 	void (*Resize)(Obj*, int width, int height);
 	void (*Free)(Obj*);
@@ -62,8 +65,8 @@ struct Obj {
 
 typedef struct {
 	Obj base;
-	Image _sprite;
 	Texture _texture;
+	float _scale;
     int _dirX, _dirY;
     Vector2 _speed;
     Vector2 _curPos, _tarPos;
@@ -80,9 +83,21 @@ typedef struct RotateObj {
 	Maze* (*GetMazeInfo)(struct RotateObj*);
 } RotateObj;
 
-Obj* New_MobiObj(const char* spriteFile, double movingDuration, int width , int height);
+Obj* New_MobiObj(Vector2 location, const char* spriteFile, double movingDuration, int width , int height);
 Obj* New_RotateObj(MazeLoadingArgs args, double interval, double movingDuration, int width, int height);
 
+
+typedef struct RenderList RenderList;
+
+struct RenderList {
+	size_t mobiCount;
+	MobiObj** mobiList;
+	size_t rotaCount;
+	RotateObj** rotaList;
+};
+
+
+void Free(RenderList* list);
 
 #ifdef __cplusplus
 }

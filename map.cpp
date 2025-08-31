@@ -24,7 +24,7 @@ using namespace std;
 //extern RenderTexture2D mazeTexture;
 
 
-void GenerateMaze(Maze* mazeInfo, int inputCol, int inputRow) {
+void GenerateMaze(Maze* mazeInfo, int loop, int inputCol, int inputRow) {
     mazeInfo->col = inputCol;
     mazeInfo->row = inputRow;
     mazeInfo->maze = (Cell**)calloc(inputCol, sizeof(Cell*));
@@ -34,6 +34,7 @@ void GenerateMaze(Maze* mazeInfo, int inputCol, int inputRow) {
 
     InitializeMaze(&(mazeInfo->maze), inputCol, inputRow);
     CreateMaze(&(mazeInfo->maze), inputCol, inputRow, 0, 0);
+	AddLoops(&(mazeInfo->maze), inputCol, inputRow, loop);
 }
 void InitializeMaze(Cell*** maze, int col, int row) {
     for (int i = 0; i < col; i++) {
