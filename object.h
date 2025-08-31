@@ -43,6 +43,7 @@ typedef struct {
 typedef struct {
 	Maze* mazeInfo;
 	int dx, dy;
+	float rotation;
 } MoveArgs;
 
 typedef struct Obj Obj;
@@ -55,6 +56,8 @@ struct Obj {
 	// METHODS BEGIN *******
 	Vector2 (*GetPos)(Obj*);
 	Vector2 (*GetSize)(Obj*);
+	float (*GetAngleDegree)(Obj*);
+	void (*ChangeAngleDegree)(Obj*, float rotation);
 	void (*Move)(Obj*, const MoveArgs);
 	void (*Draw)(Obj*);
 	void (*Update)(Obj*);
@@ -66,13 +69,14 @@ struct Obj {
 typedef struct {
 	Obj base;
 	Texture _texture;
+	float _rotation;		// degree (NOT RADIAN)
 	float _scale;
     int _dirX, _dirY;
     Vector2 _speed;
     Vector2 _curPos, _tarPos;
 } MobiObj;
 
-typedef struct RotateObj {
+typedef struct RotaObj {
 	Obj base;
 	int _dir;
 	double _speed;
@@ -80,11 +84,11 @@ typedef struct RotateObj {
 	double _curAngle, _tarAngle;
 	Maze* _mazeInfo;
 
-	Maze* (*GetMazeInfo)(struct RotateObj*);
-} RotateObj;
+	Maze* (*GetMazeInfo)(struct RotaObj*);
+} RotaObj;
 
 Obj* New_MobiObj(Vector2 location, const char* spriteFile, double movingDuration, int width , int height);
-Obj* New_RotateObj(MazeLoadingArgs args, double interval, double movingDuration, int width, int height);
+Obj* New_RotaObj(MazeLoadingArgs args, double interval, double movingDuration, int width, int height);
 
 
 typedef struct RenderList RenderList;
@@ -93,7 +97,7 @@ struct RenderList {
 	size_t mobiCount;
 	MobiObj** mobiList;
 	size_t rotaCount;
-	RotateObj** rotaList;
+	RotaObj** rotaList;
 };
 
 

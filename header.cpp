@@ -106,7 +106,7 @@ void GameStart(){
 						args.data.mazeSize = (Vector2){5, 7};
 						double cell = MeasureCellSize((Vector2){screenWidth, screenHeight}, args.data.mazeSize);
 
-						rota = New_RotateObj(args, 2.0, 0.5, screenWidth, screenHeight);
+						rota = New_RotaObj(args, 2.0, 0.5, screenWidth, screenHeight);
 
 						mobi = New_MobiObj((Vector2){0, 0}, "assets/image/sprite/get_a_job.jpeg", 0.5, (int)cell, (int)cell);
 //						mobi = New_MobiObj((Vector2){0, 0}, "assets/image/test.png", 0.5, (int)cell, (int)cell);
@@ -115,7 +115,7 @@ void GameStart(){
 
 						MobiObj* mobiList[] = {(MobiObj*)goal, (MobiObj*)mobi};
 						size_t mobiCount = sizeof(mobiList) / sizeof(mobiList[0]);
-						RotateObj* rotaList[] = {(RotateObj*)rota};
+						RotaObj* rotaList[] = {(RotaObj*)rota};
 						size_t rotaCount = sizeof(rotaList) / sizeof(rotaList[0]);
 						list = (RenderList){mobiCount, mobiList, rotaCount, rotaList};
 
@@ -132,18 +132,20 @@ void GameStart(){
 				screenWidth = GetScreenWidth();
 				screenHeight = GetScreenHeight();
 				Vector2 screenSize = {(float)screenWidth, (float)screenHeight};
-				Maze* mazeInfo = ((RotateObj*)rota)->GetMazeInfo((RotateObj*)rota);
+				Maze* mazeInfo = ((RotaObj*)rota)->GetMazeInfo((RotaObj*)rota);
 				Vector2 mazeSize = {(float)mazeInfo->col, (float)mazeInfo->row};
 
 				double cell = MeasureCellSize(screenSize, mazeSize);
 				Vector2 alterV = MeasureAlterVec(screenSize, mazeSize, cell); 
    
 
-				UpdateRender(&lastTexture, (MobiObj*)mobi, (RotateObj*)rota, screenWidth, screenHeight);
+				UpdateRender(&lastTexture, list, screenWidth, screenHeight);
 
 				InputMove((MobiObj*)mobi, mazeInfo);
+				rota->Move(rota, (MoveArgs){0});
 
 				mobi->Update(mobi);
+				rota->Update(rota);
 
 				Render(list, &lastTexture, alterV);
 

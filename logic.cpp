@@ -3,22 +3,6 @@
 
 #include <stdlib.h>
 
-// ALL NECESSARY GLOBAL VARIABLES FOR LOGIC COME FROM HERE
-//bool gameWon = false;
-//
-//// EXTERNAL VARIABLES
-//extern Position goal;
-//extern MobiObj player;
-//extern Cell** maze;
-//extern int col, row;
-//extern int screenWidth, screenHeight;
-//extern double movingDuration;
-//extern bool isRotating;
-//extern Vector2 alterVec;
-//extern double cellSize;
-//extern double curAngle;
-//extern double targetAngle;
-//extern double dDeg;
 
 void InputMove(MobiObj* mobiObj, Maze* mazeInfo) {
     const int dx[4] = { 0, 1, 0, -1 };
@@ -38,6 +22,15 @@ void InputMove(MobiObj* mobiObj, Maze* mazeInfo) {
 
 bool WinCheck(Vector2 objPos, Vector2 goalPos) {
 	return ((int)objPos.x == (int)goalPos.x && (int)objPos.y == (int)goalPos.y);
+}
+
+void Rotate(RenderList list) {
+	MobiObj** mobiLs = list.mobiList;
+	RotaObj** rotaLs = list.rotaList;
+	size_t mobiCnt=  list.mobiCount;
+	size_t rotaCnt=  list.rotaCount;
+
+
 }
 
 //void ResetVal() {

@@ -10,11 +10,10 @@
 
 
 void UpdateTextureFromImage(Texture2D*, Image*, int screenWidth, int screenHeight);
-void UpdateRender(RenderTexture* rt, MobiObj* mobi, RotateObj* rota, int screenWidth, int screenHeight);
+void UpdateRender(RenderTexture* rt, RenderList list, int screenWidth, int screenHeight);
 
 Vector2 MeasureAlterVec(Vector2 screenSize, Vector2 mazeSize, double cellSize);
 double MeasureCellSize(Vector2 screenSize, Vector2 mazeSize);
-void DrawGoal(Vector2 goalPos, Vector2 alterVec, double cellSize);
 void Render(RenderList list, RenderTexture* lastTexture,  Vector2 alterVec);
 
 #endif

@@ -13,19 +13,41 @@ void UpdateTextureFromImage(Texture2D* texture, Image* img, int width, int heigh
 	}
 }
 
-void UpdateRender(RenderTexture* rt, MobiObj* mobi, RotateObj* rota, int screenWidth, int screenHeight) {
-	Vector2 screenSize = {(float)screenWidth, (float)screenHeight};
-	Maze* mazeInfo = rota->GetMazeInfo(rota);
-	Vector2 mazeSize = {(float)mazeInfo->col, (float)mazeInfo->row};
-	double cell = MeasureCellSize(screenSize, mazeSize);
-	bool changed = (rt->texture.width != screenWidth || rt->texture.height != screenHeight);
-	if (changed) {
+void UpdateRender(RenderTexture* rt, RenderList list, int screenWidth, int screenHeight) {
+//	Vector2 screenSize = {(float)screenWidth, (float)screenHeight};
+//	Maze* mazeInfo = rota->GetMazeInfo(rota);
+//	Vector2 mazeSize = {(float)mazeInfo->col, (float)mazeInfo->row};
+//	double cell = MeasureCellSize(screenSize, mazeSize);
+//	
+//	float newW = cell 
+//	bool changed = (rt->texture.width != screenWidth || rt->texture.height != screenHeight);
+//	if (changed) {
+//		UnloadRenderTexture(*rt);
+//		*rt = LoadRenderTexture(screenWidth, screenHeight);
+//		rota->base.Resize((Obj*)rota, screenWidth, screenHeight);
+//		Maze* mazeInfo = ((RotaObj*)rota)->GetMazeInfo(rota);
+//		double cell = MeasureCellSize((Vector2){screenWidth, screenHeight}, (Vector2){mazeInfo->col, mazeInfo->row});
+//		mobi->base.Resize((Obj*)mobi, cell, cell);
+//	}
+
+	MobiObj** mobiLs = list.mobiList;
+	RotaObj** rotaLs = list.rotaList;
+	size_t mobiCnt = list.mobiCount;
+	size_t rotaCnt = list.rotaCount;
+
+	for (size_t cnt = 0; cnt < rotaCnt; cnt++) {
+		((Obj*)rotaLs[cnt])->Resize((Obj*)rotaLs[cnt], screenWidth, screenHeight);
+	}
+	Vector2 cellSize = ((Obj*)rotaLs[0])->GetSize((Obj*)rotaLs[0]);
+	for (size_t cnt = 0; cnt < mobiCnt; cnt++) {
+		((Obj*)mobiLs[cnt])->Resize((Obj*)mobiLs[cnt], (int)cellSize.x, (int)cellSize.y);
+	}
+	Maze* mazeInfo = rotaLs[0]->GetMazeInfo(rotaLs[0]);
+	float rtW = cellSize.x * mazeInfo->col + 5;
+	float rtH = cellSize.y * mazeInfo->row + 5;
+	if (rtW != rt->texture.width || rtH != rt->texture.height) {
 		UnloadRenderTexture(*rt);
-		*rt = LoadRenderTexture(screenWidth, screenHeight);
-		rota->base.Resize((Obj*)rota, screenWidth, screenHeight);
-		Maze* mazeInfo = ((RotateObj*)rota)->GetMazeInfo(rota);
-		double cell = MeasureCellSize((Vector2){screenWidth, screenHeight}, (Vector2){mazeInfo->col, mazeInfo->row});
-		mobi->base.Resize((Obj*)mobi, cell, cell);
+		*rt = LoadRenderTexture(rtW, rtH);
 	}
 }
 
