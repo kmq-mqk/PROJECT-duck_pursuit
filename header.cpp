@@ -107,6 +107,13 @@ void GameStart(){
 						double cell = MeasureCellSize((Vector2){screenWidth, screenHeight}, args.data.mazeSize);
 
 						rota = New_RotaObj(args, 2.0, 0.5, screenWidth, screenHeight);
+						if (!init) {
+							printf("%.2f\n", rota->_scale);
+							printf("%d\t%d\n\n", rota->_width, rota->_height);
+							init = true;
+
+//							exit(EXIT_SUCCESS);
+						}
 
 						mobi = New_MobiObj((Vector2){0, 0}, "assets/image/sprite/get_a_job.jpeg", 0.5, (int)cell, (int)cell);
 //						mobi = New_MobiObj((Vector2){0, 0}, "assets/image/test.png", 0.5, (int)cell, (int)cell);
@@ -143,11 +150,21 @@ void GameStart(){
 
 				InputMove((MobiObj*)mobi, mazeInfo);
 				rota->Move(rota, (MoveArgs){0});
+				Rotate(list);
 
 				mobi->Update(mobi);
 				rota->Update(rota);
-
-				Render(list, &lastTexture, alterV);
+//
+//				Render(list, &lastTexture, alterV);
+				BeginDrawing();
+					ClearBackground(BLACK);
+//					if (rota->_tex.width != (int)mazeSize.x * cell || rota->_tex.height != (int)mazeSize.y * cell) {
+						rota->Resize(rota, GetScreenWidth(), GetScreenHeight());
+//						printf("%.2f\n", rota->_scale);
+//						printf("%d\t%d\n\n", rota->_width, rota->_height);
+//					}
+					rota->Draw(rota);
+				EndDrawing();
 
 
 				Vector2 mobiPos = mobi->GetPos(mobi);

@@ -8,6 +8,7 @@
 #include <stdio.h>
 
 
+void DrawTextByCenter(Texture tex, Vector2 center, float rotation, float scale, Color tint, bool flipY);
 
 void UpdateTextureFromImage(Texture2D*, Image*, int screenWidth, int screenHeight);
 void UpdateRender(RenderTexture* rt, RenderList list, int screenWidth, int screenHeight);

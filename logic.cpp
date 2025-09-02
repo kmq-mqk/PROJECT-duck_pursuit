@@ -27,10 +27,24 @@ bool WinCheck(Vector2 objPos, Vector2 goalPos) {
 void Rotate(RenderList list) {
 	MobiObj** mobiLs = list.mobiList;
 	RotaObj** rotaLs = list.rotaList;
-	size_t mobiCnt=  list.mobiCount;
-	size_t rotaCnt=  list.rotaCount;
+	size_t mobiCnt = list.mobiCount;
+	size_t rotaCnt = list.rotaCount;
 
+	if (!((Obj*)rotaLs[0])->IsMoving((Obj*)rotaLs[0])) {
+		int rotationTypes[] = {-180, -90, 90, 180};
+		size_t size = sizeof(rotationTypes) / sizeof(rotationTypes[0]);
+		int addAngle = rotationTypes[GetRandomValue(0, size - 1)];
 
+		MoveArgs args = {NULL, 0, 0, (float)addAngle};
+		for (size_t cnt = 0; cnt < rotaCnt; cnt++) {
+			((Obj*)rotaLs[cnt])->Move((Obj*)rotaLs[cnt], args);
+		}
+	}
+
+	float rotation = ((Obj*)rotaLs[0])->GetAngleDegree((Obj*)rotaLs[0]);
+	for (size_t cnt = 0; cnt < mobiCnt; cnt++) {
+		((Obj*)mobiLs[cnt])->ChangeAngleDegree((Obj*)mobiLs[cnt], rotation);
+	}
 }
 
 //void ResetVal() {

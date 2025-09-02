@@ -52,8 +52,11 @@ struct Obj {
     bool _isMoving;
 	double _movingDuration;
 	int _width, _height;
+	Texture _tex;
+	float _scale;
 
 	// METHODS BEGIN *******
+	bool (*IsMoving)(Obj*);
 	Vector2 (*GetPos)(Obj*);
 	Vector2 (*GetSize)(Obj*);
 	float (*GetAngleDegree)(Obj*);
@@ -68,9 +71,7 @@ struct Obj {
 
 typedef struct {
 	Obj base;
-	Texture _texture;
 	float _rotation;		// degree (NOT RADIAN)
-	float _scale;
     int _dirX, _dirY;
     Vector2 _speed;
     Vector2 _curPos, _tarPos;
@@ -81,6 +82,7 @@ typedef struct RotaObj {
 	int _dir;
 	double _speed;
 	double _lastRotateTime, _rotateInterval;
+	RenderTexture _rt;
 	double _curAngle, _tarAngle;
 	Maze* _mazeInfo;
 

@@ -3,6 +3,14 @@
 
 #include <math.h>
 
+void DrawTextByCenter(Texture tex, Vector2 center, float rotation, float scale, Color tint, bool flipY) {
+	int flip = (flipY) ? -1 : 1;
+	Rectangle src = {0, 0, tex.width, tex.height * flip};
+	Rectangle dest = {center.x, center.y, scale * tex.width, scale * tex.height};
+	Vector2 origin = {scale * tex.width / 2.0f, scale * tex.height / 2.0f};
+
+	DrawTexturePro(tex, src, dest, origin, rotation, tint);
+}
 
 void UpdateTextureFromImage(Texture2D* texture, Image* img, int width, int height) {
 	bool changed = (img->width != width || img->height != height);
@@ -43,16 +51,19 @@ void UpdateRender(RenderTexture* rt, RenderList list, int screenWidth, int scree
 		((Obj*)mobiLs[cnt])->Resize((Obj*)mobiLs[cnt], (int)cellSize.x, (int)cellSize.y);
 	}
 	Maze* mazeInfo = rotaLs[0]->GetMazeInfo(rotaLs[0]);
-	float rtW = cellSize.x * mazeInfo->col + 5;
-	float rtH = cellSize.y * mazeInfo->row + 5;
+//	float rtW = cellSize.x * mazeInfo->col + 5;
+//	float rtH = cellSize.y * mazeInfo->row + 5;
+	float rtW = cellSize.x * mazeInfo->col;
+	float rtH = cellSize.y * mazeInfo->row;
 	if (rtW != rt->texture.width || rtH != rt->texture.height) {
 		UnloadRenderTexture(*rt);
 		*rt = LoadRenderTexture(rtW, rtH);
 	}
 }
 
-void Render(RenderList list, RenderTexture* lastTexture,  Vector2 alterV) {
-    BeginTextureMode(*lastTexture);
+void Render(RenderList list, RenderTexture* lastTexture, Vector2 alterV) {
+	BeginTextureMode(*lastTexture);
+//	BeginDrawing();
         ClearBackground(BLACK);
 
 		for (size_t i = 0; i < list.rotaCount; i++) {
@@ -62,83 +73,33 @@ void Render(RenderList list, RenderTexture* lastTexture,  Vector2 alterV) {
 		for (size_t i = 0; i < list.mobiCount; i++) {
 			list.mobiList[i]->base.Draw(&(list.mobiList[i]->base));
 		}
-    EndTextureMode();
+//	EndDrawing();
+	EndTextureMode();
 
     // Sau đó xoay texture lên màn hình
-	float curAngle = (list.rotaList[0]->base.GetPos(&(list.rotaList[0]->base))).x;
-	
-	int width = lastTexture->texture.width;
-	int height = lastTexture->texture.height;
+//	float curAngle = (list.rotaList[0]->base.GetPos(&(list.rotaList[0]->base))).x;
+//	
+//	int width = lastTexture->texture.width;
+//	int height = lastTexture->texture.height;
 
-    BeginDrawing();
-        ClearBackground(BLACK);
+//    BeginDrawing();
+//        ClearBackground(BLACK);
+//
+//        Rectangle source = { 0, 0, width, -height }; // cần - chiều cao
+//        Rectangle dest = { alterV.x + width / 2, alterV.y + height / 2, width, height };
+//        Vector2 origin = { width / 2, height / 2 };
+//
+//        DrawTexturePro(lastTexture->texture, source, dest, origin, curAngle, WHITE);
+//    EndDrawing();
 
-        Rectangle source = { 0, 0, width, -height }; // cần - chiều cao
-        Rectangle dest = { alterV.x + width / 2, alterV.y + height / 2, width, height };
-        Vector2 origin = { width / 2, height / 2 };
+	BeginDrawing();
+		ClearBackground(BLACK);
+		DrawTextByCenter(lastTexture->texture, (Vector2){GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f}, 0.0f, 1.0f, WHITE, 1);
+	EndDrawing();
 
-        DrawTexturePro(lastTexture->texture, source, dest, origin, curAngle, WHITE);
-    EndDrawing();
-}
-//
-//int CycleAngle(int angle) {
-//    if (angle < -360)
-//        return angle + 360;
-//    if (angle >= 360)
-//        return angle - 360;
-//
-//    return angle;
-//}
-//void Rotate(double rotateDuration) {
-//    int dir = 1 - 2 * (dDeg < 0);   // dir == 1 -> curAngle incrases; dir == -1 -> curAngle decreases
-//
-//    if (isRotating && curAngle * dir >= targetAngle * dir) {
-//        curAngle = targetAngle = CycleAngle(targetAngle);
-//        dDeg = 0;
-//        isRotating = false;
-//        
-//        return;
-//    }
-//    if (!isRotating && GetTime() - lastAutoRotateTime >= autoRotateInterval) {
-//            isRotating = true;
-//            lastAutoRotateTime = GetTime();
-//        
-//            int rotationTypes[] = {-180, -90, 90, 180};
-//
-//            int size = sizeof(rotationTypes) / sizeof(rotationTypes[0]);
-//        
-//            int addAngle = rotationTypes[GetRandomValue(0, size - 1)];
-//            dDeg = addAngle / rotateDuration;
-//            targetAngle = curAngle + addAngle;
-//            
-//            isRotating = true;
-//        }
-//    if (isRotating && curAngle * dir < targetAngle * dir) {
-//        curAngle += GetFrameTime() * dDeg;
-//    }
-//}
-
-//void DrawMaze(Vector2 alterVec, double cellSize) {
-//    for (int x = 0; x < col; x++) {
-//        for (int y = 0; y < row; y++) {
-//            int posX = x * cellSize + alterVec.x;
-//            int posY = y * cellSize + alterVec.y;
-//            if (maze[x][y].topWall)  DrawLine(posX, posY, posX + cellSize, posY, WHITE);
-//            if (maze[x][y].rightWall)  DrawLine(posX + cellSize, posY, posX + cellSize, posY + cellSize, WHITE);
-//            if (maze[x][y].leftWall)  DrawLine(posX, posY , posX, posY + cellSize, WHITE);
-//            if (maze[x][y].bottomWall)  DrawLine(posX, posY + cellSize, posX + cellSize, posY + cellSize, WHITE);
-//
-//        }
-//    }
-//}
-//void DrawPlayer(Vector2 alterVec, double cellSize) {
-//    Vector2 pos = {alterVec.x + player.curPos.x * cellSize + 2, alterVec.y + player.curPos.y * cellSize + 2};
-//    Vector2 size = {cellSize - 4, cellSize - 4};
-//    DrawRectangleV(pos, size, GREEN);
-//    // DrawRectangle(alterVec.x + player.x * cellSize + 2, alterVec.y + player.y * cellSize + 2, cellSize - 4, cellSize - 4, GREEN);
-//}
-void DrawGoal(Vector2 goalPos, Vector2 alterVec, double cellSize) {
-    DrawRectangle(alterVec.x + goalPos.x * cellSize + 2, alterVec.y + goalPos.y * cellSize + 2, cellSize - 4, cellSize - 4, PINK);
+//	FILE* log = fopen("rotate.log", "a");
+//	fprintf(log, "rota == %.2f\t mobi == %.2f\n", list.rotaList[0]->base.GetAngleDegree(&(list.rotaList[0]->base)), list.mobiList[0]->base.GetAngleDegree(&(list.mobiList[0]->base)));
+//	fclose(log);
 }
 
 double MeasureCellSize(Vector2 screenSize, Vector2 mazeSize) {

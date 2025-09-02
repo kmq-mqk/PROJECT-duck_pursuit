@@ -6,17 +6,12 @@
 #include <stdlib.h>
 
 
-static void DrawTextByCenter(Texture tex, Vector2 center, float rotation, float scale, Color tint) {
-	Rectangle src = {0, 0, tex.width, tex.height};
-	Rectangle dest = {center.x, center.y, scale * tex.width, scale * tex.height};
-	Vector2 origin = {scale * tex.width / 2.0f, scale * tex.height / 2.0f};
-
-	DrawTexturePro(tex, src, dest, origin, rotation, tint);
+static bool Obj_IsMoving(Obj* obj) {
+	return obj->_isMoving;
 }
 
-
 // mobi: max size of sprite
-// rota: max size of cell
+// rota: max size
 static Vector2 Obj_GetSize(Obj* obj) {
 	return (Vector2){(float)obj->_width, (float)obj->_height};
 }
@@ -80,8 +75,8 @@ static void Mobi_Draw(Obj* obj) {
     float cellX = mobi->_curPos.x * obj->_width;
     float cellY = mobi->_curPos.y * obj->_height;
 
-    float spriteW = mobi->_texture.width * mobi->_scale;
-    float spriteH = mobi->_texture.height * mobi->_scale;
+    float spriteW = mobi->base._tex.width * mobi->base._scale;
+    float spriteH = mobi->base._tex.height * mobi->base._scale;
 
 //    Vector2 renderPos = {
 //        cellX + (obj->_width  - spriteW) / 2.0f,
@@ -93,8 +88,8 @@ static void Mobi_Draw(Obj* obj) {
 		cellY + obj->_height / 2.0f
 	};
 
-//    DrawTextureEx(mobi->_texture, renderPos, 45.0f, mobi->_scale, WHITE);
-	DrawTextByCenter(mobi->_texture, renderPos, 45.0f, mobi->_scale, WHITE);
+//    DrawTextureEx(mobi->base._tex, renderPos, 45.0f, mobi->base._scale, WHITE);
+	DrawTextByCenter(mobi->base._tex, renderPos, mobi->_rotation, mobi->base._scale, WHITE, 0);
 }
 
 static void Mobi_Update(Obj* obj) {
@@ -119,16 +114,20 @@ static void Mobi_Resize(Obj* obj, int width, int height) {	// input cellSize
 	obj->_width = width;
 	obj->_height = height;
 
-	int minEdge = (obj->_width < obj->_height) ? obj->_width : obj->_height;
-	int minText = (mobi->_texture.width < mobi->_texture.height) ? mobi->_texture.width : mobi->_texture.height; 
-	mobi->_scale = (float)(minEdge - 5.0f) / minText;
+//	int minEdge = (obj->_width < obj->_height) ? obj->_width : obj->_height;
+//	int minText = (mobi->base._tex.width < mobi->base._tex.height) ? mobi->base._tex.width : mobi->base._tex.height; 
+//	mobi->base._scale = (float)(minEdge - 5.0f) / minText;
+
+	int maxEdge = (obj->_width > obj->_height) ? obj->_width : obj->_height;
+	int maxText = (mobi->base._width > mobi->base._height) ? mobi->base._width : mobi->base._height;
+	mobi->base._scale = (float)(maxEdge - 5.0f) / maxText;
 }
 
 static void Mobi_Free(Obj* obj) {
 	MobiObj* mobiObj = (MobiObj*)obj;
 
-	if (IsTextureValid(mobiObj->_texture))
-		UnloadTexture(mobiObj->_texture);
+	if (IsTextureValid(mobiObj->base._tex))
+		UnloadTexture(mobiObj->base._tex);
 
 	free(mobiObj);
 }
@@ -144,7 +143,10 @@ Obj* New_MobiObj(Vector2 location, const char* spriteFile, double movingDuration
 		0,
 		movingDuration,
 		width, height,
+		(Texture){0},
+		0.0f,
 
+		Obj_IsMoving,
 		Mobi_GetPos,
 		Obj_GetSize,
 		Mobi_GetAngleDegree,
@@ -157,8 +159,8 @@ Obj* New_MobiObj(Vector2 location, const char* spriteFile, double movingDuration
 	};
 	
 	Image img = LoadImage(spriteFile);
-	mobiObj->_texture = LoadTextureFromImage(img);
-	SetTextureWrap(mobiObj->_texture, TEXTURE_WRAP_CLAMP);
+	mobiObj->base._tex = LoadTextureFromImage(img);
+	SetTextureWrap(mobiObj->base._tex, TEXTURE_WRAP_CLAMP);
 	UnloadImage(img);
 
 	mobiObj->_rotation = 0.0f;
@@ -176,40 +178,55 @@ Obj* New_MobiObj(Vector2 location, const char* spriteFile, double movingDuration
 
 // ******* MAZE'S SECTION BEGINS *******
 
-static void DrawMaze(RotaObj rotateObj) {
-	int col = rotateObj._mazeInfo->col;
-	int row = rotateObj._mazeInfo->row;
-	Cell** maze = rotateObj._mazeInfo->maze;
-	float cellWidth = (float)rotateObj.base._width;
-	float cellHeight = (float)rotateObj.base._height;
+static void DrawMaze(RotaObj* rotateObj) {
+	int col = rotateObj->_mazeInfo->col;
+	int row = rotateObj->_mazeInfo->row;
+	Cell** maze = rotateObj->_mazeInfo->maze;
+//	float cellWidth = (float)rotateObj->base._width;
+//	float cellHeight = (float)rotateObj->base._height;
 
-    for (int x = 0; x < col; x++) {
-        for (int y = 0; y < row; y++) {
-            float posX = cellWidth * x;
-            float posY = cellHeight * y;
+	float cellWidth = MeasureCellSize((Vector2){rotateObj->base._width, rotateObj->base._height}, (Vector2){col, row});
+	float cellHeight = cellWidth;
 
-            if (maze[x][y].topWall) {
-				Vector2 start = {posX, posY};
-				Vector2 end = {posX + cellWidth, posY};
-			   	DrawLineEx(start, end, 2.0f, WHITE);
-			}
-            if (maze[x][y].rightWall) {
-				Vector2 start = {posX + cellWidth, posY};
-				Vector2 end = {posX + cellWidth, posY + cellHeight};
-			   	DrawLineEx(start, end, 2.0f, WHITE);
-			}
-            if (maze[x][y].leftWall) {
-				Vector2 start = {posX, posY};
-				Vector2 end = {posX, posY + cellHeight};
-			   	DrawLineEx(start, end, 2.0f, WHITE);
-			}
-            if (maze[x][y].bottomWall) {
-				Vector2 start = {posX, posY + cellHeight};
-				Vector2 end = {posX + cellWidth, posY + cellHeight};
-			   	DrawLineEx(start, end, 2.0f, WHITE);
-			}
-        }
-    }
+	Vector2 adjust = {5, 5};
+	rotateObj->_rt = LoadRenderTexture(col * cellWidth + adjust.x, row * cellHeight + adjust.y);
+	
+	BeginTextureMode(rotateObj->_rt);
+	    for (int x = 0; x < col; x++) {
+	        for (int y = 0; y < row; y++) {
+	            float posX = cellWidth * x + adjust.x / 2.0f;
+	            float posY = cellHeight * y + adjust.y / 2.0f;
+	
+	            if (maze[x][y].topWall) {
+					Vector2 start = {posX, posY};
+					Vector2 end = {posX + cellWidth, posY};
+				   	DrawLineEx(start, end, 2.0f, WHITE);
+				}
+	            if (maze[x][y].rightWall) {
+					Vector2 start = {posX + cellWidth, posY};
+					Vector2 end = {posX + cellWidth, posY + cellHeight};
+				   	DrawLineEx(start, end, 2.0f, WHITE);
+				}
+	            if (maze[x][y].leftWall) {
+					Vector2 start = {posX, posY};
+					Vector2 end = {posX, posY + cellHeight};
+				   	DrawLineEx(start, end, 2.0f, WHITE);
+				}
+	            if (maze[x][y].bottomWall) {
+					Vector2 start = {posX, posY + cellHeight};
+					Vector2 end = {posX + cellWidth, posY + cellHeight};
+				   	DrawLineEx(start, end, 2.0f, WHITE);
+				}
+	        }
+	    }
+	EndTextureMode();
+
+//	BeginDrawing();
+//		ClearBackground(BLACK);
+//		DrawTexture(rt.texture, 0, 0, WHITE);
+//	EndDrawing();
+
+	rotateObj->base._tex = rotateObj->_rt.texture;
 }
 
 static Vector2 Rota_GetPos(Obj* obj) {
@@ -225,11 +242,6 @@ static float Rota_GetAngleDegree(Obj* obj) {
 	return rota->_curAngle;
 }
 
-//static void Rota_ChangeAngleDegree(Obj* obj, float rotation) {
-//	RotaObj* rota = (RotaObj*)obj;
-//	rota->_tarAngle = 
-//}
-
 // for now, I just pass in the args for the sake of using the function pointer
 static void Rota_Move(Obj* obj, MoveArgs args) {
 	RotaObj* rotateObj = (RotaObj*)obj;
@@ -242,20 +254,23 @@ static void Rota_Move(Obj* obj, MoveArgs args) {
 	if (obj->_isMoving || GetTime() - rotateObj->_lastRotateTime < rotateObj->_rotateInterval)
 		return;
 
+	float addAngle = args.rotation;
+
 	obj->_isMoving = 1;
 	
-	int rotationTypes[] = {-180, -90, 90, 180};
-	size_t size = sizeof(rotationTypes) / sizeof(rotationTypes[0]);
-
-	int addAngle = rotationTypes[GetRandomValue(0, size - 1)];
 	rotateObj->_speed = addAngle / obj->_movingDuration;
 	rotateObj->_dir = 1 - 2 * (rotateObj->_speed < 0);	// _dir == 1 -> _curAngle increases; dir == -1 -> _curAngle decreases
 	rotateObj->_tarAngle = rotateObj->_curAngle + addAngle;
 	rotateObj->_lastRotateTime = GetTime();
 }
 static void Rota_Draw(Obj* obj) {
-	RotaObj* rota = (RotaObj*)obj;
-	DrawMaze(*rota);
+	Rectangle src = {0, 0, obj->_tex.width, -obj->_tex.height};
+//	Rectangle dest = {GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f, obj->_tex.width * obj->_scale, obj->_tex.height * obj->_scale};
+	Rectangle dest = {0, 0, obj->_tex.width * obj->_scale, obj->_tex.height * obj->_scale};
+//	Vector2 origin = {obj->_scale * obj->_tex.width / 2.0f, obj->_scale * obj->_tex.height / 2.0f};
+	Vector2 origin = {0, 0};
+	
+	DrawTexturePro(obj->_tex, src, dest, origin, ((RotaObj*)obj)->_curAngle, WHITE);
 }
 
 static void Rota_Update(Obj* obj) {
@@ -283,8 +298,19 @@ static void Rota_Resize(Obj* obj, int width, int height) {		// width is usually 
 	Maze* mazeInfo = rota->GetMazeInfo(rota);
 	double cell = MeasureCellSize((Vector2){width, height}, (Vector2){mazeInfo->col, mazeInfo->row});
 
-	obj->_width = cell;
-	obj->_height = cell;
+//	int minPrevCell = (obj->_width < obj->_height) ? obj->_width : obj->_height;
+//	obj->_scale = 
+//	obj->_width = cell;
+//	obj->_height = cell;
+
+	int newW = mazeInfo->col * cell;
+	int newH = mazeInfo->row * cell;
+	int maxNew = (newW > newH) ? newH : newH;
+
+	int maxTex = (obj->_width > obj->_height) ? obj->_tex.width : obj->_tex.height;
+	obj->_scale = (float)maxNew / maxTex;
+	obj->_width = newW;
+	obj->_height = newH;
 }
 
 static void Rota_Free(Obj* obj) {
@@ -301,37 +327,65 @@ static void Rota_Free(Obj* obj) {
 	free(rotateObj->_mazeInfo);
 	rotateObj->_mazeInfo = NULL;
 
+	UnloadRenderTexture(((RotaObj*)obj)->_rt);
+
 	free(rotateObj);
 }
 
 
-static void LoadMaze (RotaObj* rotateObj, MazeLoadingArgs args) {
+static void LoadMaze (RotaObj* rota, MazeLoadingArgs args) {
 	if (args.type == GENERATE) {
 		int inputCol = (int)args.data.mazeSize.x;
 		int inputRow = (int)args.data.mazeSize.y;
 		int loop = args.loop;
 		
-		GenerateMaze(rotateObj->_mazeInfo, loop, inputCol, inputRow);
+		GenerateMaze(rota->_mazeInfo, loop, inputCol, inputRow);
 	}
 	else if (args.type == LOAD_FILE) {
-		LoadMap(rotateObj->_mazeInfo, args.data.file);
+		LoadMap(rota->_mazeInfo, args.data.file);
 	}
+
+//	int curMonitor = GetCurrentMonitor();
+//	int monitorW = GetMonitorWidth(curMonitor);
+//	int monitorH = GetMonitorHeight(curMonitor);
+//	int maxMonitorEdge = (monitorW > monitorH) ? monitorW : monitorH;
+//	rota->base._width = rota->base._height = maxMonitorEdge;
+//
+	int screenH = GetScreenHeight();
+	int screenW = GetScreenWidth();
+	int maxEdge = (screenH > screenW) ? screenH : screenW;
+	rota->base._width = rota->base._height = maxEdge;
+
+	DrawMaze(rota);
 }
 	
 // remember to add file loading here (maze loading)
 Obj* New_RotaObj(MazeLoadingArgs args, double interval, double movingDuration, int width, int height) {
 	RotaObj* obj = (RotaObj*)malloc(sizeof(RotaObj));
 
-	double cell = MeasureCellSize((Vector2){width, height}, args.data.mazeSize);
-	
 	if (NULL == obj)
 		return NULL;
+
+	obj->_mazeInfo = (Maze*)malloc(sizeof(Maze));
+	if (obj->_mazeInfo == NULL)
+		perror("Not enough memory");
+
+	double cell = MeasureCellSize((Vector2){width, height}, args.data.mazeSize);
+
+	obj->_dir = 0;
+	obj->_speed = obj->_curAngle = obj->_tarAngle = 0.0;
+	obj->_lastRotateTime = -1;
+	obj->_rotateInterval= interval;
+	obj->GetMazeInfo = GetMazeInfo;
 
 	obj->base = (Obj){
 		0,
 		movingDuration,
-		cell, cell,
+		0, 0,
+		(Texture){0},
+		0.0f,
 
+		Obj_IsMoving,
 		Rota_GetPos,
 		Obj_GetSize,
 		Rota_GetAngleDegree,
@@ -343,15 +397,9 @@ Obj* New_RotaObj(MazeLoadingArgs args, double interval, double movingDuration, i
 		Rota_Free,
 	};
 
-	obj->_mazeInfo = (Maze*)malloc(sizeof(Maze));
-	if (obj->_mazeInfo != NULL)
-		LoadMaze(obj, args);
+	LoadMaze(obj, args);
 
-	obj->_dir = 0;
-	obj->_speed = obj->_curAngle = obj->_tarAngle = 0.0;
-	obj->_lastRotateTime = -1;
-	obj->_rotateInterval= interval;
-	obj->GetMazeInfo = GetMazeInfo;
+	Rota_Resize((Obj*)obj, width, height);
 
 	return (Obj*)obj;
 }
